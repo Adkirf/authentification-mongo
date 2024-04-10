@@ -1,13 +1,15 @@
-import React from "react";
+import { DashboardContext } from "@/pages/dashboard";
+import React, { useContext } from "react";
 
 const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-const CalendarGrid = ({ currentDate, setCurrentDate, setDateLevel }) => {
+const CalendarGrid = () => {
+  const { currentDate, fSetCurrentDate, fSetDateLevel, currentReservations } =
+    useContext(DashboardContext);
+
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
-
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-
   const startDayOfWeek = new Date(year, month, 1).getDay();
 
   const emptyStartDays = Array.from({ length: startDayOfWeek }).map((_, i) => (
@@ -17,8 +19,8 @@ const CalendarGrid = ({ currentDate, setCurrentDate, setDateLevel }) => {
   const monthDays = Array.from({ length: daysInMonth }).map((_, i) => (
     <div
       onClick={() => {
-        setDateLevel("day");
-        setCurrentDate(new Date(year, month, i + 1));
+        fSetDateLevel("day");
+        fSetCurrentDate(new Date(year, month, i + 1));
       }}
       key={i}
       className="py-4 px-2 bg-gray-100 text-center border rounded shadow hover:bg-blue-100"

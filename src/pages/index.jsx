@@ -1,11 +1,8 @@
+import { Dashboard } from "@mui/icons-material";
 import React from "react";
-import { redirect } from "next/navigation";
-import { useSession } from "next-auth/react";
 
 const Home = () => {
-  const { data: session } = useSession();
-  // session is always non-null inside this page, all the way down the React tree.
-  return "Some super secret dashboard";
+  return <div>hello</div>;
 };
 
 Home.auth = true;

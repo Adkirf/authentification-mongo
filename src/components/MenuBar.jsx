@@ -1,83 +1,76 @@
-import React, { useState } from "react";
+import { DashboardContext } from "@/pages/dashboard";
+import React, { useContext, useState } from "react";
+
+import { filterClosestTime } from "@/utils/utils";
 
 import MenuIcon from "@mui/icons-material/Menu";
 
-const MenuBar = ({
-  currentReservations,
-  setCurrentReservations,
-  currentDate,
-  setCurrentDate,
-  dateLevel,
-  setDateLevel,
-  toggleSidebar,
-}) => {
+const MenuBar = () => {
+  const {
+    currentReservations,
+    currentDate,
+    fSetCurrentDate,
+    dateLevel,
+    fSetDateLevel,
+    toggleSidebar,
+  } = useContext(DashboardContext);
+
   const handlePrevios = () => {
+    let newDate = new Date(currentDate);
     if (dateLevel === "month") {
-      const newMonth = new Date(currentDate);
-      newMonth.setMonth(currentDate.getMonth() - 1);
-      setCurrentDate(newMonth);
-      return;
+      newDate.setMonth(currentDate.getMonth() - 1);
     }
     if (dateLevel === "day") {
-      const newDay = new Date(currentDate);
-      newDay.setDate(currentDate.getDate() - 1);
-      setCurrentDate(newDay);
-      return;
+      newDate.setDate(currentDate.getDate() - 1);
     }
     if (dateLevel === "time") {
-      const newOrder = [...currentReservations];
-      if (newOrder.length > 0) {
-        const lastItem = newOrder.pop();
-        newOrder.unshift(lastItem);
-      }
-      setCurrentReservations(newOrder);
-      setCurrentDate(new Date(newOrder[0].start));
+      const closestReservation = filterClosestTime(
+        currentDate,
+        currentReservations,
+        false
+      );
+      newDate = closestReservation
+        ? closestReservation.start
+        : new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
     }
+    fSetCurrentDate(newDate);
   };
 
   const handleNext = () => {
+    let newDate = new Date(currentDate);
     if (dateLevel === "month") {
-      const newMonth = new Date(currentDate);
-      newMonth.setMonth(currentDate.getMonth() + 1);
-      setCurrentDate(newMonth);
-      return;
+      newDate.setMonth(currentDate.getMonth() + 1);
     }
     if (dateLevel === "day") {
-      const newDay = new Date(currentDate);
-      newDay.setDate(currentDate.getDate() + 1);
-      setCurrentDate(newDay);
-      return;
+      newDate.setDate(currentDate.getDate() + 1);
     }
     if (dateLevel === "time") {
-      const newOrder = [...currentReservations];
-      if (newOrder.length > 0) {
-        const firstItem = newOrder.shift();
-        newOrder.push(firstItem);
-      }
-      setCurrentReservations(newOrder);
-      setCurrentDate(new Date(newOrder[0].start));
+      const closestReservation = filterClosestTime(
+        currentDate,
+        currentReservations,
+        true
+      );
+      newDate = closestReservation
+        ? closestReservation.start
+        : new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
     }
-  };
-
-  const handleToday = () => {
-    setCurrentDate(new Date());
+    fSetCurrentDate(newDate);
   };
 
   return (
     <div className="flex w-full items-center justify-between px-4 py-2 shadow bg-gray-800 p-4">
-      <button onClick={() => toggleSidebar()} className="">
+      <button onClick={() => toggleSidebar()} className="md:hidden">
         <MenuIcon />
       </button>
-
       <div className="flex flex-row gap-4">
         <MonthPickerButton
           currentDate={currentDate}
-          setCurrentDate={setCurrentDate}
+          fSetCurrentDate={fSetCurrentDate}
           dateLevel={dateLevel}
-          setDateLevel={setDateLevel}
+          fSetDateLevel={fSetDateLevel}
         />
       </div>
-      <button onClick={handlePrevios} className="p-2 hover:bg-gray-100 rounded">
+      <button onClick={handlePrevios} className="p-2 bg-gray-100 rounded">
         {/* SVG or icon for the left arrow */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -94,7 +87,7 @@ const MenuBar = ({
           />
         </svg>
       </button>
-      <button onClick={handleNext} className="p-2 hover:bg-gray-100 rounded">
+      <button onClick={handleNext} className="p-2 bg-gray-100 rounded">
         {/* SVG or icon for the right arrow */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -119,9 +112,9 @@ export default MenuBar;
 
 const MonthPickerButton = ({
   currentDate,
-  setCurrentDate,
+  fSetCurrentDate,
   dateLevel,
-  setDateLevel,
+  fSetDateLevel,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -144,12 +137,12 @@ const MonthPickerButton = ({
 
   const selectMonth = (monthIndex) => {
     if (monthIndex === -1) {
-      setCurrentDate(new Date());
+      fSetCurrentDate(new Date());
     } else {
       const newMonth = new Date(currentDate.getFullYear(), monthIndex);
-      setCurrentDate(newMonth);
+      fSetCurrentDate(newMonth);
     }
-    setDateLevel("month");
+    fSetDateLevel("month");
     setIsOpen(false);
   };
 
@@ -181,7 +174,7 @@ const MonthPickerButton = ({
         {buttonLabel()}
       </button>
       {isOpen && (
-        <ul className="absolute left-0 w-full max-h-40 overflow-auto bg-white shadow-md mt-1 z-10 bottom-full md:top-full">
+        <ul className="absolute left-0 w-full max-h-40 overflow-auto bg-white shadow-md mt-1 z-10 bottom-full md:bottom-auto">
           <li
             className={`px-4 py-2 hover:bg-blue-100 cursor-pointer`}
             onClick={() => selectMonth(-1)}

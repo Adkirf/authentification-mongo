@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
+import { DashboardContext } from "@/pages/dashboard";
 
 import { formatDate } from "../utils/utils.js";
 
@@ -7,28 +8,27 @@ const openingHours = {
   close: "23:00",
 };
 
-const ReservationForm = ({
-  currentDate,
-  setCurrentDate,
-  currentReservations,
-}) => {
+const ReservationForm = () => {
+  const { currentDate, fSetCurrentDate, currentReservations } =
+    useContext(DashboardContext);
+
+  console.log(currentDate);
+  console.log(currentReservations);
+
   return (
     <div className="flex flex-col items-center md:flex-col-reverse">
-      <ReservationList
-        currentDate={currentDate}
-        currentReservations={currentReservations}
-      />
-      <HorizontalTimeSlots
-        currentDate={currentDate}
-        setCurrentDate={setCurrentDate}
-      />
+      <ReservationList />
+      <HorizontalTimeSlots />
     </div>
   );
 };
 
 export default ReservationForm;
 
-const ReservationCard = ({ reservation, currentDate }) => {
+const ReservationCard = ({ reservation }) => {
+  const { currentReservations, currentDate, updateReservation } =
+    useContext(DashboardContext);
+
   const [status, setStatus] = useState("make"); // make, change, check-in, checked
 
   const [email, setEmail] = useState("");
@@ -45,24 +45,21 @@ const ReservationCard = ({ reservation, currentDate }) => {
       setEmail(reservation.email);
       setName(reservation.name);
       setPeopleCount(reservation.peopleCount);
-      setStart(reservation.start.toLocaleString().split("+")[0]);
-      setEnd(reservation.end.toLocaleString().split("+")[0]);
+      setStart(reservation.start);
+      setEnd(reservation.end);
       if (reservation.status == "checked") {
         setStatus("checked");
         return;
       }
       const fifteenMinutesFromNow = new Date().getTime() + 15 * 60000;
-      const reservationStart = new Date(reservation.start);
-      console.log(`reservation: ${reservationStart.getTime()}`);
-      console.log(`fifteen: ${new Date().getTime() + 15 * 60000}`);
 
-      if (reservationStart.getTime() <= fifteenMinutesFromNow) {
+      if (new Date(start).getTime() <= fifteenMinutesFromNow) {
         setStatus("check-in");
         return;
       }
       setStatus("change");
     }
-  }, [reservation, currentDate]);
+  }, [currentReservations, currentDate]);
 
   const getHeader = () => {
     switch (status) {
@@ -157,28 +154,20 @@ const ReservationCard = ({ reservation, currentDate }) => {
     }
   };
   const handleSubmit = async (e) => {
-    /*  e.preventDefault();
+    e.preventDefault();
     if (validateInputs()) {
-      try {
-        const response = await fetch("/api/reservations", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email,
-            name,
-            peopleCount,
-            reservationDate: dateTime,
-          }),
-        });
+      const newReservation = {
+        name: name,
+        email: email,
+        peopleCount: peopleCount,
+        start: new Date(start).toISOString,
+        end: new Date(end).toISOString,
+        status: status === "check-in" ? "checked" : "",
+      };
 
-        if (!response.ok) {
-          throw new Error("Response not ok");
-        }
-        const data = await response.json();
-        console.log("Reservation submitted:", data);
-        // Reset form fields after successful submission if needed
+      try {
+        updateReservation(currentReservation, newReservation);
+
         setEmail("");
         setName("");
         setPeopleCount(1);
@@ -187,7 +176,7 @@ const ReservationCard = ({ reservation, currentDate }) => {
         console.error("Error submitting reservation:", error);
         setErrorMessage("Error submitting reservation. Please try again.");
       }
-    } */
+    }
   };
 
   return (
@@ -260,16 +249,15 @@ const ReservationCard = ({ reservation, currentDate }) => {
   );
 };
 
-const ReservationList = ({ currentDate, currentReservations }) => {
+const ReservationList = () => {
+  const { currentDate, currentReservations } = useContext(DashboardContext);
+
   const findInterferingReservations = () => {
     const intersectingReservations = currentReservations.filter(
       (reservation) => {
-        const reservationStart = new Date(reservation.start);
-        const reservationEnd = new Date(reservation.end);
-
         if (
-          reservationStart.getTime() <= currentDate.getTime() &&
-          reservationEnd >= currentDate.getTime()
+          new Date(reservation.start).getTime() <= currentDate.getTime() &&
+          new Date(reservation.end).getTime() >= currentDate.getTime()
         ) {
           return reservation;
         }
@@ -280,25 +268,23 @@ const ReservationList = ({ currentDate, currentReservations }) => {
   };
 
   if (findInterferingReservations().length == 0) {
-    return <ReservationCard reservation={null} currentDate={currentDate} />;
+    return <ReservationCard reservation={null} />;
   }
 
   return (
     <div className="overflow-x-scroll w-full p-[20px]">
       <div className="flex flex-row gap-8 ">
         {findInterferingReservations().map((reservation, index) => (
-          <ReservationCard
-            key={index}
-            reservation={reservation}
-            currentDate={currentDate}
-          />
+          <ReservationCard key={index} reservation={reservation} />
         ))}
       </div>
     </div>
   );
 };
 
-const HorizontalTimeSlots = ({ currentDate, setCurrentDate }) => {
+const HorizontalTimeSlots = () => {
+  const { currentDate, fSetCurrentDate } = useContext(DashboardContext);
+
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
   const timeSlotsContainerRef = useRef(null);
 
@@ -371,7 +357,8 @@ const HorizontalTimeSlots = ({ currentDate, setCurrentDate }) => {
     const [hours, minutes] = slot.split(":").map(Number);
     const newDate = new Date(currentDate);
     newDate.setHours(hours, minutes, 0, 0);
-    setCurrentDate(newDate);
+    console.log(`handleTimeSLotsChange ${newDate}`);
+    fSetCurrentDate(newDate);
   };
 
   return (

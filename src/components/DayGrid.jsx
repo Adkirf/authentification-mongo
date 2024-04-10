@@ -1,34 +1,14 @@
-import React from "react";
-import "tailwindcss/tailwind.css";
+import { DashboardContext } from "@/pages/dashboard";
+import React, { useContext } from "react";
 
 const openingHours = {
   open: "08:00",
   close: "23:00",
 };
 
-const reservations = [
-  {
-    tableNumber: 1,
-    peopleCount: 20,
-    start: "2024-04-08T10:00:00.000+00:00",
-    end: "2024-04-08T12:00:00.000+00:00",
-  },
-  {
-    tableNumber: 2,
-    peopleCount: 1,
-    start: "2024-04-08T19:30:00.000+00:00",
-    end: "2024-04-08T19:30:00.000+00:00",
-  },
-  {
-    tableNumber: 3,
-    peopleCount: 4,
-    start: "2024-04-08T16:30:00.000+00:00",
-    end: "2024-04-08T17:30:00.000+00:00",
-    status: "checked",
-  },
-];
+const DayGrid = () => {
+  const { currentReservations, currentDate } = useContext(DashboardContext);
 
-const DayGrid = ({ currentDate, setCurrentDate, setDateLevel }) => {
   const getTimeSlots = () => {
     const slots = [];
     const openHour = parseInt(openingHours.open.split(":")[0], 10);
@@ -48,7 +28,7 @@ const DayGrid = ({ currentDate, setCurrentDate, setDateLevel }) => {
 
     const reservationSlots = [];
 
-    reservations.forEach((reservation) => {
+    currentReservations.forEach((reservation) => {
       const reservationDate = new Date(reservation.start)
         .toISOString()
         .split("T")[0];
