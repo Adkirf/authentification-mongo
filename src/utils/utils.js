@@ -238,6 +238,7 @@ export async function getReservation(reservation) {
 export async function makeReservation(reservation) {
   const errorData = isInvalid(reservation);
   if (errorData) {
+    console.log("error in valdiating");
     throw errorData;
   }
   try {
@@ -253,6 +254,7 @@ export async function makeReservation(reservation) {
       };
     }
   } catch (e) {
+    console.log("error in finding table");
     console.log(e);
     throw {
       severity: "error",
@@ -276,6 +278,7 @@ export async function makeReservation(reservation) {
     }
     return await response.json();
   } catch (e) {
+    console.log("error ");
     console.log(e);
     throw e;
   }

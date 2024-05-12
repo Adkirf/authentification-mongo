@@ -50,23 +50,21 @@ const authOptions = {
       //Get API Reservations here
       // Reservation NEVER NULL!!!!
 
-      await dbConnect();
-
-      let reservations;
-      try {
+      let reservations = [];
+      /* try {
         reservations = await getReservations(new Date().getMonth());
       } catch (e) {
         reservations = [];
         console.log("failed to load reservations in session");
-      }
+      } */
 
-      let tables;
-      try {
+      let tables = [];
+      /* try {
         tables = await getTables();
       } catch (e) {
         tables = [];
         console.log("failed to load tables in session");
-      }
+      } */
 
       session.data = { reservations: reservations.data, tables: tables.data };
       return session;
