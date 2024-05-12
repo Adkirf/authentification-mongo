@@ -145,7 +145,13 @@ function isInvalid(reservation) {
 }
 
 async function findBestTable(reservation) {
-  const tables = (await getTables()).data;
+  let tables = [];
+  try {
+    tables = (await getTables()).data;
+  } catch (e) {
+    console.log(e);
+    throw { severity: "error", message: "unable to get tables" };
+  }
 
   let availableTables = [];
 

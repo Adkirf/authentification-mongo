@@ -11,6 +11,7 @@ import ReservationCard from "../components/ReservationCard";
 
 import {
   getReservations,
+  getTables,
   makeReservation,
   deleteReservation,
   changeReservation,
@@ -47,20 +48,6 @@ const App = () => {
   };
 
   useEffect(() => {
-    const init = async () => {
-      try {
-        const tables = await getTables(new Date().getMonth());
-        const reservations = await getReservations();
-        fSetTables(tables);
-        fSetCurrentReservations(reservations);
-      } catch (e) {
-        console.log("failed getching from cleint");
-        console.log(e);
-      }
-    };
-
-    init();
-
     fSetCurrentReservations(session.data.reservations);
     fSetTables(session.data.tables);
     fSetCurrentDate();
