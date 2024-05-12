@@ -445,7 +445,7 @@ export default async function handler(req, res) {
         console.log("after log chekc");
 
         const tableResponse = await fetch(
-          `${baseURL}/api/tables?tableNumber=${tableNumber}`,
+          `${baseURL}api/tables?tableNumber=${tableNumber}`,
           {
             method: "PUT",
             headers: {
