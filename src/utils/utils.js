@@ -100,7 +100,7 @@ export async function getAvailableTables() {
 function getBaseUrl() {
   if (typeof window === "undefined") {
     // Server-side
-    return process.env.BASEURL || "http://localhost:3000"; // Use a server-only environment variable or a hardcoded fallback
+    return process.env.NEXT_PUBLIC_BASEURL || "http://localhost:3000"; // Use a server-only environment variable or a hardcoded fallback
   } else {
     // Client-side
     return process.env.NEXT_PUBLIC_BASEURL || ""; // This needs to be exposed to the client-side

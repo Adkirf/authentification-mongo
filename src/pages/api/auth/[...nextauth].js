@@ -50,6 +50,9 @@ const authOptions = {
     async session(session, user) {
       //Get API Reservations here
       // Reservation NEVER NULL!!!!
+
+      await dbConnect();
+
       let reservations;
       try {
         const thisYear = new Date().getFullYear();
