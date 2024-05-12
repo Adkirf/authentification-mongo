@@ -1,6 +1,8 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import User from "@/models/User.js";
+import Reservation from "@/models/Reservation.js";
+import Table from "@/models/Table.js";
 import bcrypt from "bcryptjs";
 import dbConnect from "@/utils/mydb";
 
@@ -43,9 +45,6 @@ const authOptions = {
       console.log("loggin in");
       if (account?.provider === "credentials") {
         return true;
-      } else {
-        console.log("error in sign in");
-        return true;
       }
     },
     async session(session, user) {
@@ -53,7 +52,18 @@ const authOptions = {
       // Reservation NEVER NULL!!!!
       let reservations;
       try {
-        reservations = await getReservations(new Date().getMonth());
+        const thisYear = new Date().getFullYear();
+        const nextMonth = parseInt(month) + parseInt(1);
+
+        const firstDayOfMonth = new Date(thisYear, month, 1);
+        const lastDayOfMonth = new Date(thisYear, nextMonth, 0);
+
+        reservations = await Reservation.find({
+          start: {
+            $gte: firstDayOfMonth,
+            $lte: lastDayOfMonth,
+          },
+        }).sort({ start: 1 });
       } catch (e) {
         reservations = [];
         console.log("failed to load reservations in session");
@@ -61,9 +71,9 @@ const authOptions = {
 
       let tables;
       try {
-        tables = await getTables();
+        table = await Table.findOne({});
       } catch (e) {
-        reservations = [];
+        tables = [];
         console.log("failed to load tables in session");
       }
 
