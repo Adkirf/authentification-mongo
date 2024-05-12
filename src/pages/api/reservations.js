@@ -4,7 +4,7 @@ import dbConnect from "../../utils/mydb";
 import Reservation from "../../models/Reservation";
 import Table from "../../models/Table";
 
-const baseURL = process.env.BASEURL || "http://localhost:3000";
+const baseURL = process.env.NEXT_PUBLIC_BASEURL || "http://localhost:3000";
 
 let dumyReservations = [
   {

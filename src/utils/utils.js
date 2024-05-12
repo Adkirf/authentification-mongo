@@ -148,6 +148,7 @@ async function findBestTable(reservation) {
   let tables = [];
   try {
     tables = (await getTables()).data;
+    console.log(tables);
   } catch (e) {
     console.log(e);
     throw { severity: "error", message: "unable to get tables" };
@@ -284,7 +285,7 @@ export async function makeReservation(reservation) {
     }
     return await response.json();
   } catch (e) {
-    console.log("error ");
+    console.log("error in make reservation");
     console.log(e);
     throw e;
   }
