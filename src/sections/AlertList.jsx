@@ -1,20 +1,18 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { DashboardContext } from "@/pages/dashboard";
 
 import Alert from "@mui/material/Alert";
 
 const AlertList = () => {
   const { alerts, removeAlert } = useContext(DashboardContext);
-
-  console.log(alerts);
-
   return (
-    <div className="fixed flex flex-col bottom-4 right-4 gap-2">
+    <div className="fixed flex flex-col top-4 md:top-auto md:bottom-4 right-4 gap-2 z-[100]">
       {alerts.map((alert, index) => (
         <AlertTile
-          key={index}
+          key={alert.id + index}
           message={alert.message}
           severity={alert.severity}
+          id={alert.id}
           index={index}
           removeAlert={removeAlert}
         />
@@ -25,28 +23,24 @@ const AlertList = () => {
 
 export default AlertList;
 
-const AlertTile = ({ severity, message, removeAlert, index }) => {
+const AlertTile = ({ severity, message, id, removeAlert }) => {
   const [isVisible, setIsVisible] = useState(true);
+  const alertRef = useRef(null);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
       setIsVisible(false);
+      removeAlert(id);
     }, 3000);
 
     return () => clearTimeout(timeout);
   }, []);
 
-  const handleRemove = () => {
-    setIsVisible(false);
-    removeAlert(index);
-  };
-
   return (
     <div
+      ref={alertRef}
       className={`alert ${isVisible ? "opacity-100" : "opacity-0"}`}
-      onAnimationEnd={() => {
-        if (!isVisible) removeAlert(index);
-      }}
+      style={{ transition: "opacity 0.3s" }}
     >
       <Alert severity={severity}>{message}</Alert>
     </div>

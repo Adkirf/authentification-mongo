@@ -4,15 +4,21 @@ import React, { useContext, useState } from "react";
 import { filterClosestTime } from "@/utils/utils";
 
 import MenuIcon from "@mui/icons-material/Menu";
+import CloseIcon from "@mui/icons-material/Close";
+import { MonthPicker } from "@/components/Picker";
 
 const MenuBar = () => {
   const {
+    currentReservation,
+    fSetCurrentReservation,
     currentReservations,
     currentDate,
     fSetCurrentDate,
+    fSetNextOrPrevDate,
     dateLevel,
     fSetDateLevel,
     toggleSidebar,
+    isSidebarOpen,
   } = useContext(DashboardContext);
 
   const handlePrevios = () => {
@@ -26,12 +32,19 @@ const MenuBar = () => {
     if (dateLevel === "time") {
       const closestReservation = filterClosestTime(
         currentDate,
+        currentReservation,
         currentReservations,
         false
       );
+      if (closestReservation) {
+        fSetCurrentReservation(closestReservation);
+        return;
+      }
       newDate = closestReservation
         ? closestReservation.start
         : new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+      fSetNextOrPrevDate(false, newDate);
+      return;
     }
     fSetCurrentDate(newDate);
   };
@@ -47,30 +60,34 @@ const MenuBar = () => {
     if (dateLevel === "time") {
       const closestReservation = filterClosestTime(
         currentDate,
+        currentReservation,
         currentReservations,
         true
       );
+
+      if (closestReservation) {
+        fSetCurrentReservation(closestReservation);
+        return;
+      }
       newDate = closestReservation
         ? closestReservation.start
         : new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+      fSetNextOrPrevDate(true, newDate);
+      return;
     }
     fSetCurrentDate(newDate);
   };
 
   return (
-    <div className="flex w-full items-center justify-between px-4 py-2 shadow bg-gray-800 p-4">
+    <div className="flex h-full flex-grow items-center justify-between md:justify-center md:gap-4 px-4 py-2 shadow bg-gray-800 p-4">
       <button onClick={() => toggleSidebar()} className="md:hidden">
-        <MenuIcon />
+        {isSidebarOpen ? (
+          <CloseIcon className="text-gray-100" />
+        ) : (
+          <MenuIcon className="text-gray-100" />
+        )}
       </button>
-      <div className="flex flex-row gap-4">
-        <MonthPickerButton
-          currentDate={currentDate}
-          fSetCurrentDate={fSetCurrentDate}
-          dateLevel={dateLevel}
-          fSetDateLevel={fSetDateLevel}
-        />
-      </div>
-      <button onClick={handlePrevios} className="p-2 bg-gray-100 rounded">
+      <button onClick={handlePrevios} className="p-2 bg-gray-100 rounded ml-16">
         {/* SVG or icon for the left arrow */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -87,6 +104,8 @@ const MenuBar = () => {
           />
         </svg>
       </button>
+      <MonthPicker />
+
       <button onClick={handleNext} className="p-2 bg-gray-100 rounded">
         {/* SVG or icon for the right arrow */}
         <svg
@@ -109,91 +128,3 @@ const MenuBar = () => {
 };
 
 export default MenuBar;
-
-const MonthPickerButton = ({
-  currentDate,
-  fSetCurrentDate,
-  dateLevel,
-  fSetDateLevel,
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-
-  const toggleDropdown = () => setIsOpen(!isOpen);
-
-  const selectMonth = (monthIndex) => {
-    if (monthIndex === -1) {
-      fSetCurrentDate(new Date());
-    } else {
-      const newMonth = new Date(currentDate.getFullYear(), monthIndex);
-      fSetCurrentDate(newMonth);
-    }
-    fSetDateLevel("month");
-    setIsOpen(false);
-  };
-
-  const buttonLabel = () => {
-    const year = currentDate.getFullYear();
-    const month = months[currentDate.getMonth()];
-    const day = currentDate.getDate();
-    const hours = currentDate.getHours();
-    const minutes = currentDate.getMinutes().toString().padStart(2, "0");
-
-    switch (dateLevel) {
-      case "month":
-        return `${month} ${year}`;
-      case "day":
-        return `${day} ${month}`;
-      case "time":
-        return `${hours}:${minutes} on ${day} ${month}`;
-      default:
-        return "Select Date";
-    }
-  };
-
-  return (
-    <div className="relative">
-      <button
-        onClick={toggleDropdown}
-        className="px-4 py-2 bg-blue-500 text-white rounded-md"
-      >
-        {buttonLabel()}
-      </button>
-      {isOpen && (
-        <ul className="absolute left-0 w-full max-h-40 overflow-auto bg-white shadow-md mt-1 z-10 bottom-full md:bottom-auto">
-          <li
-            className={`px-4 py-2 hover:bg-blue-100 cursor-pointer`}
-            onClick={() => selectMonth(-1)}
-          >
-            Today
-          </li>
-          {months.map((month, index) => (
-            <li
-              key={index}
-              className={`px-4 py-2 hover:bg-blue-100 cursor-pointer ${
-                currentDate.getMonth() === index ? "bg-blue-200" : ""
-              }`}
-              onClick={() => selectMonth(index)}
-            >
-              {month}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-};

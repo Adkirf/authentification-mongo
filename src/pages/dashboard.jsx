@@ -1,210 +1,36 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 
-import CalendarGrid from "@/components/CalendarGrid";
-import MenuBar from "@/components/MenuBar";
-import SideBar from "@/components/Sidebar";
-import DayGrid from "@/components/DayGrid";
-import ReservationForm from "@/components/ReservationForm";
-import AlertList from "@/components/AlertList";
+import CalendarGrid from "@/sections/CalendarGrid";
+import MenuBar from "@/sections/MenuBar";
+import SideBar from "@/sections/Sidebar";
+import DayGrid from "@/sections/DayGrid";
+import ReservationGrid from "@/sections/ReservationGrid";
+import AlertList from "@/sections/AlertList";
+import ReservationCard from "../components/ReservationCard";
+
+import {
+  getReservations,
+  makeReservation,
+  deleteReservation,
+  changeReservation,
+} from "../utils/utils.js";
 
 export const DashboardContext = createContext();
-const dumy = [
-  [
-    {
-      email: "alex@example.com",
-      name: "Alex",
-      tableNumber: 1,
-      peopleCount: 4,
-      start: "2024-01-10T18:00:00.000+00:00",
-      end: "2024-01-10T20:00:00.000+00:00",
-      status: "confirmed",
-    },
-  ],
-  [
-    {
-      email: "john@example.com",
-      name: "John",
-      tableNumber: 1,
-      peopleCount: 2,
-      start: "2024-02-14T18:00:00.000+00:00",
-      end: "2024-02-14T20:00:00.000+00:00",
-      status: "confirmed",
-    },
-    {
-      email: "susan@example.com",
-      name: "Susan",
-      tableNumber: 2,
-      peopleCount: 4,
-      start: "2024-02-22T17:30:00.000+00:00",
-      end: "2024-02-22T19:30:00.000+00:00",
-      status: "confirmed",
-    },
-    {
-      email: "mike@example.com",
-      name: "Mike",
-      tableNumber: 3,
-      peopleCount: 6,
-      start: "2024-02-29T20:00:00.000+00:00",
-      end: "2024-02-29T22:00:00.000+00:00",
-      status: "pending",
-    },
-  ],
-  [
-    {
-      email: "alice@example.com",
-      name: "Alice",
-      tableNumber: 1,
-      peopleCount: 3,
-      start: "2024-03-10T19:00:00.000+00:00",
-      end: "2024-03-10T21:00:00.000+00:00",
-      status: "confirmed",
-    },
-    {
-      email: "bob@example.com",
-      name: "Bob",
-      tableNumber: 2,
-      peopleCount: 2,
-      start: "2024-03-18T18:30:00.000+00:00",
-      end: "2024-03-18T20:30:00.000+00:00",
-      status: "confirmed",
-    },
-    {
-      email: "emma@example.com",
-      name: "Emma",
-      tableNumber: 3,
-      peopleCount: 5,
-      start: "2024-03-25T20:00:00.000+00:00",
-      end: "2024-03-25T22:00:00.000+00:00",
-      status: "confirmed",
-    },
-  ],
-  [
-    {
-      email: "peter@gmail.com",
-      name: "Peter",
-      tableNumber: 1,
-      peopleCount: 20,
-      start: "2024-04-01T10:00:00.000+00:00",
-      end: "2024-04-01T12:00:00.000+00:00",
-      status: "checked",
-    },
-    {
-      tableNumber: 2,
-      email: "ulf@gmail.com",
-      name: "Ulf",
-      peopleCount: 1,
-      start: "2024-04-08T19:30:00.000+00:00",
-      end: "2024-04-08T19:30:00.000+00:00",
-      status: "checked",
-    },
-    {
-      tableNumber: 3,
-      email: "sat@gmail.com",
-      name: "Sat",
-      peopleCount: 4,
-      start: "2024-04-28T16:30:00.000+00:00",
-      end: "2024-04-28T17:30:00.000+00:00",
-    },
-  ],
-  [
-    {
-      email: "david@example.com",
-      name: "David",
-      tableNumber: 1,
-      peopleCount: 4,
-      start: "2024-05-05T19:30:00.000+00:00",
-      end: "2024-05-05T21:30:00.000+00:00",
-      status: "confirmed",
-    },
-    {
-      email: "emily@example.com",
-      name: "Emily",
-      tableNumber: 2,
-      peopleCount: 3,
-      start: "2024-05-15T18:00:00.000+00:00",
-      end: "2024-05-15T20:00:00.000+00:00",
-      status: "confirmed",
-    },
-    {
-      email: "george@example.com",
-      name: "George",
-      tableNumber: 3,
-      peopleCount: 6,
-      start: "2024-05-25T17:00:00.000+00:00",
-      end: "2024-05-25T19:00:00.000+00:00",
-      status: "confirmed",
-    },
-  ],
-  [
-    {
-      email: "olivia@example.com",
-      name: "Olivia",
-      tableNumber: 1,
-      peopleCount: 2,
-      start: "2024-06-10T18:00:00.000+00:00",
-      end: "2024-06-10T20:00:00.000+00:00",
-      status: "confirmed",
-    },
-    {
-      email: "harry@example.com",
-      name: "Harry",
-      tableNumber: 2,
-      peopleCount: 4,
-      start: "2024-06-18T17:30:00.000+00:00",
-      end: "2024-06-18T19:30:00.000+00:00",
-      status: "confirmed",
-    },
-    {
-      email: "emma@example.com",
-      name: "Emma",
-      tableNumber: 3,
-      peopleCount: 6,
-      start: "2024-06-25T20:00:00.000+00:00",
-      end: "2024-06-25T22:00:00.000+00:00",
-      status: "confirmed",
-    },
-  ],
-  [
-    {
-      email: "james@example.com",
-      name: "James",
-      tableNumber: 1,
-      peopleCount: 3,
-      start: "2024-07-05T19:00:00.000+00:00",
-      end: "2024-07-05T21:00:00.000+00:00",
-      status: "confirmed",
-    },
-    {
-      email: "sophia@example.com",
-      name: "Sophia",
-      tableNumber: 2,
-      peopleCount: 2,
-      start: "2024-07-15T18:30:00.000+00:00",
-      end: "2024-07-15T20:30:00.000+00:00",
-      status: "confirmed",
-    },
-    {
-      email: "william@example.com",
-      name: "William",
-      tableNumber: 3,
-      peopleCount: 5,
-      start: "2024-07-25T20:00:00.000+00:00",
-      end: "2024-07-25T22:00:00.000+00:00",
-      status: "confirmed",
-    },
-  ],
-];
 
 const App = () => {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
+  const [tables, setTables] = useState(session.data.tables);
   const [currentReservations, setCurrentReservations] = useState(
-    session.data.reservationsApril
+    session.data.reservations
   );
+
+  const [currentReservation, setCurrentReservation] = useState(null);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [dateLevel, setDateLevel] = useState("month"); // month, day, time
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMakeReservationOpen, setIsMakeReservationOpen] = useState(null);
   const [alerts, setAlerts] = useState([]);
 
   const getCurrentComponent = () => {
@@ -213,85 +39,128 @@ const App = () => {
         return <CalendarGrid />;
 
       case "day":
-        return (
-          <DayGrid
-            currentDate={currentDate}
-            setCurrentDate={setCurrentDate}
-            setDateLevel={setDateLevel}
-          />
-        );
+        return <DayGrid />;
 
       case "time":
-        return (
-          <ReservationForm
-            currentDate={currentDate}
-            setCurrentDate={setCurrentDate}
-            currentReservations={currentReservations}
-          />
-        );
+        return <ReservationGrid />;
     }
   };
 
   useEffect(() => {
-    setCurrentReservations(session.data.reservationsApril);
+    fSetCurrentReservations(session.data.reservations);
+    fSetTables(session.data.tables);
+    fSetCurrentDate();
   }, [session]);
 
-  useEffect(() => {
-    sortReservationsByStartDate();
-  }, [currentReservations]);
-
-  const sortReservationsByStartDate = () => {
+  const fSetTables = async (newTables) => {
     //When Fetching Data convert date objects
-    try {
-      currentReservations.forEach((reservation) => {
-        reservation.start = new Date(reservation.start);
-        reservation.end = new Date(reservation.end);
-      });
-      const ordered = currentReservations.sort((a, b) => {
-        if (a.start < b.start) {
-          return -1;
-        } else if (a.start > b.start) {
-          return 1;
-        } else {
-          return 0;
-        }
-      });
-      setCurrentReservations(ordered);
-    } catch (e) {
-      addAlert("warning", "No Reservation found");
-      console.log(e);
-      setCurrentReservations([]);
+    // tables NEVER NULL!!!!
+    if (!newTables || newTables.length === 0) {
+      newTables = [];
+      addAlert("error", "null tables loaded");
+    }
+    newTables.forEach((table) => {
+      table.reservations.start = new Date(table.reservations.start);
+      table.reservations.end = new Date(table.reservations.end);
+    });
+
+    const ordered = tables.sort((a, b) => {
+      if (a.tableNumber > b.tableNumber) {
+        return 1;
+      } else if (a.tableNumber < b.tableNumber) {
+        return -1;
+      } else {
+        addAlert("error", "two tables with same tableNumber found");
+        return 0;
+      }
+    });
+
+    setTables(ordered);
+  };
+
+  const fSetCurrentReservations = (reservations) => {
+    //When Fetching Data convert date objects
+    // Reservations NEVER NULL!!!!
+    if (!reservations) {
+      reservations = [];
+      addAlert("error", "null reservation loaded");
+    }
+    if (reservations.length === 0) {
+      addAlert("warning", "no reservations this month");
+    }
+    reservations.forEach((reservation) => {
+      reservation.start = new Date(reservation.start);
+      reservation.end = new Date(reservation.end);
+    });
+    const ordered = reservations.sort((a, b) => {
+      if (a.start < b.start) {
+        return -1;
+      } else if (a.start > b.start) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+
+    setCurrentReservations(ordered);
+  };
+
+  const fSetCurrentReservation = async (reservation) => {
+    setCurrentReservation(reservation);
+    if (reservation) {
+      fSetCurrentDate(reservation.start);
     }
   };
 
-  const fSetCurrentDate = (newDate) => {
-    if (newDate.getTime() === currentDate.getTime()) {
-      return;
+  const fSetCurrentDate = async (newDate) => {
+    if (!newDate) {
+      newDate = new Date();
     }
-    if (newDate.getMonth() !== currentDate.getMonth()) {
-      console.log(newDate.getMonth());
-      //When Fetching Data convert date objects
-      setCurrentReservations(dumy[newDate.getMonth()]);
-    }
+    try {
+      let tempReservations = currentReservations;
 
-    if (dateLevel === "time") {
-      console.log(`set date ${newDate}`);
-
-      if (
-        currentReservations.length > 0 &&
-        newDate.getMonth() !== currentDate.getMonth()
-      ) {
-        //When Fetching and date object are directly coverted
-        newDate =
-          currentDate.getTime() > newDate.getTime()
-            ? new Date(
-                dumy[newDate.getMonth()][currentReservations.length - 1].start
-              )
-            : new Date([dumy[newDate.getMonth()][0].start]);
+      if (newDate.getTime() === currentDate.getTime()) {
+        return;
       }
+      if (newDate.getMonth() !== currentDate.getMonth()) {
+        tempReservations = (await getReservations(newDate.getMonth())).data;
+        fSetCurrentReservations(tempReservations);
+      }
+    } catch (e) {
+      addAlert("warning", "no reservations this month");
+      console.log(e);
     }
 
     setCurrentDate(newDate);
+  };
+
+  const fSetNextOrPrevDate = async (isNext, newDate) => {
+    fSetCurrentReservation();
+    try {
+      if (newDate.getMonth() !== currentDate.getMonth()) {
+        let tempReservations = (await getReservations(newDate.getMonth())).data;
+        console.log(newDate.getMonth());
+        fSetCurrentReservations(tempReservations);
+
+        if (dateLevel === "time") {
+          if (tempReservations.length) {
+            console.log(tempReservations);
+            fSetCurrentReservation(
+              isNext
+                ? tempReservations[0]
+                : tempReservations[tempReservations.length - 1]
+            );
+            return;
+          }
+
+          setCurrentDate(newDate);
+          return;
+        }
+      }
+    } catch (e) {
+      addAlert("warning", "no reservations this month");
+      console.log(e);
+    }
   };
 
   const fSetDateLevel = (dateLevel) => {
@@ -302,37 +171,191 @@ const App = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const updateReservation = (reservation, newReservation) => {
-    if (!newReservation) {
-      console.log(`delete Reservation: ${reservation}`);
-    }
-
-    if (!newReservation.name) {
-      console.log(`change Reservation: ${newReservation}`);
-    }
-    if (!reservation) {
-      console.log(`make Reservation: ${newReservation}`);
-    }
-
-    console.log("update Reservation failed.");
+  const toggleReservationCard = () => {
+    setIsMakeReservationOpen((prev) => !prev);
   };
 
-  const addAlert = (severity, message) => {
-    setAlerts((prevAlerts) => [...prevAlerts, { severity, message }]);
+  const updateReservation = async (reservation, newReservation) => {
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    //delete reservation
+    try {
+      if (!newReservation && reservation._id) {
+        console.log(`delete Reservation: ${reservation}`);
+        const response = await deleteReservation(reservation);
+        await sleep(3000);
+        await fSetCurrentDate(new Date(reservation.start));
+        setCurrentReservations((currentReservations) =>
+          currentReservations.filter(
+            (currentReservation) => currentReservation._id != response.data._id
+          )
+        );
+        if (currentReservation._id == reservation._id) {
+          fSetCurrentReservation();
+        }
+        addAlert(response.severity, response.message, response.data);
+        return;
+      }
+    } catch (e) {
+      console.log(e);
+      addAlert(e.severity, e.message, reservation);
+      throw e;
+    }
+
+    //make reservation
+    try {
+      if (!reservation && newReservation) {
+        console.log(
+          `making new Reservation: ${JSON.stringify(newReservation)}`
+        );
+        const response = await makeReservation(newReservation);
+        const resReservation = response.data;
+        resReservation.start = new Date(resReservation.start);
+        resReservation.end = new Date(resReservation.end);
+        await sleep(3000);
+        if (isMakeReservationOpen) {
+          toggleReservationCard();
+        }
+        fSetCurrentReservation(resReservation);
+        fSetCurrentReservations([...currentReservations, resReservation]);
+
+        addAlert(response.severity, response.message, newReservation);
+        return;
+      }
+    } catch (e) {
+      console.log(e);
+      if (isMakeReservationOpen) {
+        toggleReservationCard();
+      }
+
+      if (e.severity === "warning") {
+        if (e.data) {
+          await fSetCurrentReservations(e.data);
+        }
+
+        const updated = {
+          ...newReservation,
+          status: "warning",
+          errorMessage: e.message + ". Do you want to make it make anyway?",
+        };
+
+        await fSetCurrentReservation(updated);
+        addAlert(e.severity, e.message, newReservation);
+        return;
+      }
+      if (e.severity === "error") {
+        const updated = {
+          ...newReservation,
+          status: "error",
+          errorMessage: e.message,
+        };
+
+        await fSetCurrentReservation(updated);
+        addAlert(e.severity, e.message, newReservation);
+        return;
+      } else {
+        addAlert("error", "unexpected error");
+        throw e;
+      }
+    }
+
+    //change reservation
+    try {
+      if (reservation._id && newReservation) {
+        console.log(`changing Reservation: ${JSON.stringify(newReservation)}`);
+        console.log(reservation._id);
+        const response = await changeReservation(
+          reservation._id,
+          newReservation
+        );
+        const updatedReservations = currentReservations.map(
+          (currentReservation) => {
+            if (currentReservation._id == response.data._id) {
+              return { ...response.data };
+            }
+            return currentReservation;
+          }
+        );
+        const resReservation = response.data;
+        resReservation.start = new Date(resReservation.start);
+        resReservation.end = new Date(resReservation.end);
+        await sleep(3000);
+        await fSetCurrentReservation(resReservation);
+        fSetCurrentReservations([...updatedReservations]);
+        addAlert(response.severity, response.message, newReservation);
+        return;
+      }
+    } catch (e) {
+      console.log(e);
+
+      if (e.severity === "warning") {
+        const updated = {
+          ...newReservation,
+          id_: reservation._id,
+          status: "warning",
+          errorMessage: e.message + ". Do you want to make it make anyway?",
+        };
+        if (e.data) {
+          await fSetCurrentReservations(e.data);
+        }
+        await fSetCurrentReservation(updated);
+        addAlert(e.severity, e.message, newReservation);
+        return;
+      }
+      if (e.severity === "error") {
+        const updated = {
+          ...newReservation,
+          id_: reservation._id,
+          status: "error",
+          errorMessage: e.message,
+        };
+
+        await fSetCurrentReservation(updated);
+        addAlert(e.severity, e.message, newReservation);
+      } else {
+        addAlert("error", "unexpected error");
+        throw e;
+      }
+    }
   };
 
-  const removeAlert = (index) => {
-    setAlerts((prevAlerts) => prevAlerts.filter((_, i) => i !== index));
+  let lastId;
+  const addAlert = (severity, message, reservation) => {
+    if (reservation) {
+      setAlerts((prevAlerts) => [
+        ...prevAlerts.filter((prevAlert) => prevAlert.id != reservation._id),
+        { severity, message, id: reservation._id },
+      ]);
+      return;
+    }
+    const id = new Date().getTime();
+    if (id != lastId) {
+      setAlerts((prevAlerts) => [...prevAlerts, { severity, message, id }]);
+      lastId = id;
+    }
+  };
+
+  const removeAlert = (alertId) => {
+    setAlerts((currentAlerts) =>
+      currentAlerts.filter((alert) => alert.id !== alertId)
+    );
   };
 
   const contextValue = {
+    tables,
+    fSetTables,
+    currentReservations,
+    fSetCurrentReservations,
+    currentReservation,
+    fSetCurrentReservation,
     currentDate,
     fSetCurrentDate,
-    currentReservations,
+    fSetNextOrPrevDate,
     dateLevel,
     fSetDateLevel,
     isSidebarOpen,
     toggleSidebar,
+    isMakeReservationOpen,
+    toggleReservationCard,
     updateReservation,
     alerts,
     addAlert,
@@ -349,13 +372,17 @@ const App = () => {
         >
           <SideBar />
         </div>
-        <div className="flex flex-col justify-end overflow-auto flex-grow md:flex-col-reverse ">
-          <div className="flex flex-col py-8 px-2 h-full justify-center">
+        <div className="flex flex-col justify-start md:justify-end overflow-auto w-full">
+          <div className="flex flex-col h-[90vh] py-8 px-2 justify-center">
             {getCurrentComponent()}
           </div>
-          <MenuBar />
+          <div className="fixed h-[10vh] w-full md:w-[80%] flex flex-row z-[1000] bottom-0 md:top-0">
+            <MenuBar />
+          </div>
         </div>
       </div>
+      {isMakeReservationOpen && <ReservationCard />}
+
       <AlertList />
     </DashboardContext.Provider>
   );
