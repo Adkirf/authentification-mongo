@@ -21,6 +21,7 @@ const authOptions = {
         try {
           const user = await User.findOne({ name: credentials.name });
 
+          console.log(user);
           if (user) {
             const isPasswordCorrect = await bcrypt.compare(
               credentials.password,
@@ -41,6 +42,9 @@ const authOptions = {
     async signIn({ user, account }) {
       console.log("loggin in");
       if (account?.provider === "credentials") {
+        return true;
+      } else {
+        console.log("error in sign in");
         return true;
       }
     },
