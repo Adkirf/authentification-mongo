@@ -30,16 +30,18 @@ const MenuBar = () => {
       newDate.setDate(currentDate.getDate() - 1);
     }
     if (dateLevel === "time") {
-      const closestReservation = filterClosestTime(
+      let closestReservation = filterClosestTime(
         currentDate,
         currentReservation,
         currentReservations,
         false
       );
+
       if (closestReservation) {
         fSetCurrentReservation(closestReservation);
         return;
       }
+
       newDate = closestReservation
         ? closestReservation.start
         : new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
@@ -58,7 +60,7 @@ const MenuBar = () => {
       newDate.setDate(currentDate.getDate() + 1);
     }
     if (dateLevel === "time") {
-      const closestReservation = filterClosestTime(
+      let closestReservation = filterClosestTime(
         currentDate,
         currentReservation,
         currentReservations,

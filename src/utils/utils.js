@@ -30,7 +30,7 @@ export function filterClosestTime(
   if (currentReservation) {
     const res = currentReservations
       .map((reservation, index) => {
-        if (reservation.id == currentReservation.id) {
+        if (reservation._id == currentReservation._id) {
           return currentReservations[isFuture ? index + 1 : index - 1];
         }
       })
@@ -103,7 +103,7 @@ function getBaseUrl() {
     return process.env.BASEURL || "http://localhost:3000"; // Use relative URLs for server-side calls
   } else {
     // Client-side
-    return NEXT_PUBLIC_BASEURL || "http://localhost:3000"; // This needs to be exposed to the client-side
+    return process.env.NEXT_PUBLIC_BASEURL || "http://localhost:3000"; // This needs to be exposed to the client-side
   }
 }
 

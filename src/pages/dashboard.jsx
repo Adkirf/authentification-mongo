@@ -109,7 +109,7 @@ const App = () => {
   const fSetCurrentReservation = async (reservation) => {
     setCurrentReservation(reservation);
     if (reservation) {
-      fSetCurrentDate(reservation.start);
+      setCurrentDate(reservation.start);
     }
   };
 
@@ -140,21 +140,14 @@ const App = () => {
     try {
       if (newDate.getMonth() !== currentDate.getMonth()) {
         let tempReservations = (await getReservations(newDate.getMonth())).data;
-        console.log(newDate.getMonth());
         fSetCurrentReservations(tempReservations);
 
-        if (dateLevel === "time") {
-          if (tempReservations.length) {
-            console.log(tempReservations);
-            fSetCurrentReservation(
-              isNext
-                ? tempReservations[0]
-                : tempReservations[tempReservations.length - 1]
-            );
-            return;
-          }
-
-          setCurrentDate(newDate);
+        if (tempReservations.length) {
+          fSetCurrentReservation(
+            isNext
+              ? tempReservations[0]
+              : tempReservations[tempReservations.length - 1]
+          );
           return;
         }
       }
@@ -162,6 +155,9 @@ const App = () => {
       addAlert("warning", "no reservations this month");
       console.log(e);
     }
+
+    setCurrentDate(newDate);
+    return;
   };
 
   const fSetDateLevel = (dateLevel) => {
