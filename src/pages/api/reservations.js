@@ -305,6 +305,8 @@ export default async function handler(req, res) {
 
   await dbConnect();
 
+  console.log("in backend");
+
   res.setHeader("Cache-Control", "no-store, max-age=0");
   switch (method) {
     case "GET":
@@ -409,6 +411,7 @@ export default async function handler(req, res) {
     case "POST":
       try {
         const id = `${tableNumber}_${new Date().getTime()}`;
+
         let reservation = {
           _id: id,
           name: name,
@@ -421,6 +424,7 @@ export default async function handler(req, res) {
           status: status === "checked" ? "checked" : "unchecked",
           comment: comment,
         };
+        console.log(reservation);
 
         let subReservation = {
           _id: id,
@@ -430,10 +434,14 @@ export default async function handler(req, res) {
           end: end,
         };
 
+        console.log(subReservation);
+
         if (log) {
           reservation = { ...reservation, log: log };
           subReservation = { ...subReservation, log: log };
         }
+
+        console.log("after log chekc");
 
         const tableResponse = await fetch(
           `${baseURL}/api/tables?tableNumber=${tableNumber}`,
@@ -447,7 +455,12 @@ export default async function handler(req, res) {
             }),
           }
         );
+
+        console.log("table response");
+        console.log(tableResponse);
         const data = await tableResponse.json();
+
+        console.log(data);
 
         if (!tableResponse.ok) {
           const now = new Date();
