@@ -19,7 +19,6 @@ const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        await dbConnect();
         try {
           const user = await User.findOne({ name: credentials.name });
 
@@ -55,18 +54,7 @@ const authOptions = {
 
       let reservations;
       try {
-        const thisYear = new Date().getFullYear();
-        const nextMonth = parseInt(month) + parseInt(1);
-
-        const firstDayOfMonth = new Date(thisYear, month, 1);
-        const lastDayOfMonth = new Date(thisYear, nextMonth, 0);
-
-        reservations = await Reservation.find({
-          start: {
-            $gte: firstDayOfMonth,
-            $lte: lastDayOfMonth,
-          },
-        }).sort({ start: 1 });
+        reservations = await getReservations(new Date().getMonth());
       } catch (e) {
         reservations = [];
         console.log("failed to load reservations in session");
@@ -74,7 +62,7 @@ const authOptions = {
 
       let tables;
       try {
-        table = await Table.findOne({});
+        tables = await getTables();
       } catch (e) {
         tables = [];
         console.log("failed to load tables in session");

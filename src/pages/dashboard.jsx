@@ -55,6 +55,7 @@ const App = () => {
   const fSetTables = async (newTables) => {
     //When Fetching Data convert date objects
     // tables NEVER NULL!!!!
+
     if (!newTables || newTables.length === 0) {
       newTables = [];
       addAlert("error", "null tables loaded");
@@ -64,7 +65,7 @@ const App = () => {
       table.reservations.end = new Date(table.reservations.end);
     });
 
-    const ordered = tables.sort((a, b) => {
+    const ordered = newTables.sort((a, b) => {
       if (a.tableNumber > b.tableNumber) {
         return 1;
       } else if (a.tableNumber < b.tableNumber) {
