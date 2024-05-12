@@ -4,7 +4,8 @@ import dbConnect from "../../utils/mydb";
 import Reservation from "../../models/Reservation";
 import Table from "../../models/Table";
 
-const baseURL = process.env.NEXT_PUBLIC_BASEURL || "http://localhost:3000";
+const baseURL =
+  "https://authentification-mongo.vercel.app/" || "http://localhost:3000";
 
 let dumyReservations = [
   {
@@ -459,8 +460,6 @@ export default async function handler(req, res) {
         console.log("table response");
         console.log(tableResponse);
         const data = await tableResponse.json();
-
-        console.log(data);
 
         if (!tableResponse.ok) {
           const now = new Date();
