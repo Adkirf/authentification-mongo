@@ -195,6 +195,7 @@ async function findBestTable(reservation) {
 
 export async function getReservations(month) {
   try {
+    console.log(`${getBaseUrl()}/api/reservations?month=${month}`);
     const response = await fetch(
       `${getBaseUrl()}/api/reservations?month=${month}`,
       {

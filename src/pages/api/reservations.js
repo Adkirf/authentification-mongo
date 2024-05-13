@@ -4,8 +4,7 @@ import dbConnect from "../../utils/mydb";
 import Reservation from "../../models/Reservation";
 import Table from "../../models/Table";
 
-const baseURL =
-  "https://authentification-mongo.vercel.app/" || "http://localhost:3000";
+const baseURL = process.env.BASEURL || "http://localhost:3000/";
 
 let dumyReservations = [
   {
@@ -307,6 +306,8 @@ export default async function handler(req, res) {
   await dbConnect();
 
   console.log("in backend");
+
+  console.log(`${baseURL}api/tables?tableNumber=${tableNumber}`);
 
   res.setHeader("Cache-Control", "no-store, max-age=0");
   switch (method) {
