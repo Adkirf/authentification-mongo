@@ -305,8 +305,6 @@ export default async function handler(req, res) {
 
   await dbConnect();
 
-  console.log("in backend");
-
   res.setHeader("Cache-Control", "no-store, max-age=0");
   switch (method) {
     case "GET":
