@@ -307,8 +307,6 @@ export default async function handler(req, res) {
 
   console.log("in backend");
 
-  console.log(`${baseURL}api/tables?tableNumber=${tableNumber}`);
-
   res.setHeader("Cache-Control", "no-store, max-age=0");
   switch (method) {
     case "GET":
