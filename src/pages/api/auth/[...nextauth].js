@@ -20,6 +20,7 @@ const authOptions = {
       },
       async authorize(credentials) {
         try {
+          await dbConnect();
           const user = await User.findOne({ name: credentials.name });
 
           if (user) {
