@@ -15,9 +15,7 @@ self.addEventListener("install", function (event) {
 });
 
 self.addEventListener("activate", function (event) {
-  event.waitUntil(
-    clients.claim() // This will take control of all clients under the service worker's scope immediately after it activates
-  );
+  event.waitUntil(clients.claim());
 });
 
 self.addEventListener("fetch", function (event) {

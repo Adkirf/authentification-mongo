@@ -407,7 +407,7 @@ const App = () => {
         >
           <SideBar />
         </div>
-        <div className="flex flex-col justify-start md:justify-end overflow-auto w-full">
+        <div className="flex flex-col justify-start md:justify-end overflow-y-clip w-full">
           <div className="flex flex-col h-[90vh] py-8 px-2 justify-center">
             {getCurrentComponent()}
           </div>

@@ -34,7 +34,7 @@ const AlertTile = ({ severity, message, id, removeAlert }) => {
     }, 3000);
 
     return () => clearTimeout(timeout);
-  }, []);
+  }, [message]);
 
   return (
     <div
