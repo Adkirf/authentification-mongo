@@ -24,11 +24,11 @@ const Home = () => {
   }, [session]);
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center md:px-0">
+    <div className="flex  w-screen items-center justify-center md:px-0">
       {isPWA ? (
         <HomeScreen reservations={reservations ? reservations.length : "..."} />
       ) : (
-        <div className="w-full h-full bg-gray-200 p-4">
+        <div className="w-full h-screen bg-gray-200 p-4">
           <div className="flex flex-col gap-4 w-full max-w-[500px] justify-center items-center mt-8">
             <div className="w-[100px] h-[100px]">
               <img className="rounded-xl" src="/assets/addIcon2.png" />

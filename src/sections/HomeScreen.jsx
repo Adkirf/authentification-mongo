@@ -19,7 +19,7 @@ const HomeScreen = ({ reservations }) => {
   const [tutorialStep, setTutorialStep] = useState(0);
 
   return (
-    <div className="flex flex-col mx-4 gap-8 w-full max-w-[500px] justify-center">
+    <div className="flex flex-col mx-4 gap-8 w-full max-w-[500px] justify-center py-12">
       <h1 className="text-gray-700 font-black text-4xl md:text-5xl leading-[125%]">
         <span className="text-blue-500">Welcome</span> to your Reservation Book!
       </h1>
