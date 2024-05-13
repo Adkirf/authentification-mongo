@@ -100,10 +100,14 @@ export async function getAvailableTables() {
 function getBaseUrl() {
   if (typeof window === "undefined") {
     // Server-side
-    return process.env.BASEURL || "http://localhost:3000"; // Use relative URLs for server-side calls
+    console.log("from server");
+    console.log();
+    return process.env.BASEURL || "http://localhost:3000/"; // Use relative URLs for server-side calls
   } else {
     // Client-side
-    return process.env.NEXT_PUBLIC_BASEURL || "http://localhost:3000"; // This needs to be exposed to the client-side
+    console.log("from client");
+
+    return process.env.NEXT_PUBLIC_BASEURL || "http://localhost:3000/"; // This needs to be exposed to the client-side
   }
 }
 
@@ -194,9 +198,8 @@ async function findBestTable(reservation) {
 
 export async function getReservations(month) {
   try {
-    console.log(`${getBaseUrl()}/api/reservations?month=${month}`);
     const response = await fetch(
-      `${getBaseUrl()}/api/reservations?month=${month}`,
+      `${getBaseUrl()}api/reservations?month=${month}`,
       {
         method: "GET",
         headers: {
@@ -220,7 +223,7 @@ export async function getReservations(month) {
 export async function getReservation(reservation) {
   try {
     const response = await fetch(
-      `${getBaseUrl()}/api/reservations?_id=${reservation._id}`,
+      `${getBaseUrl()}api/reservations?_id=${reservation._id}`,
       {
         method: "GET",
         headers: {
@@ -273,7 +276,7 @@ export async function makeReservation(reservation) {
   }
 
   try {
-    const response = await fetch(`${getBaseUrl()}/api/reservations`, {
+    const response = await fetch(`${getBaseUrl()}api/reservations`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -321,7 +324,7 @@ export async function changeReservation(changeReservationId, newReservation) {
 
   try {
     const response = await fetch(
-      `${getBaseUrl()}/api/reservations?_id=${changeReservationId}`,
+      `${getBaseUrl()}api/reservations?_id=${changeReservationId}`,
       {
         method: "PUT",
         headers: {
@@ -348,7 +351,7 @@ export async function changeReservation(changeReservationId, newReservation) {
 export async function deleteReservation(reservation) {
   try {
     const response = await fetch(
-      `${getBaseUrl()}/api/reservations?_id=${reservation._id}`,
+      `${getBaseUrl()}api/reservations?_id=${reservation._id}`,
       {
         method: "DELETE",
         headers: {
@@ -377,7 +380,7 @@ export async function deleteReservation(reservation) {
 // TABLES
 export async function getTables() {
   try {
-    const response = await fetch(`${getBaseUrl()}/api/tables`, {
+    const response = await fetch(`${getBaseUrl()}api/tables`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
