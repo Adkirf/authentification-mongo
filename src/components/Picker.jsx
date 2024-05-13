@@ -144,7 +144,7 @@ export const MonthPicker = ({}) => {
       case "day":
         return `${day} ${month}`;
       case "time":
-        return `${hours}:${minutes} on ${day} ${month}`;
+        return `${day} ${month}`;
       default:
         return "Select Date";
     }

@@ -401,7 +401,7 @@ const App = () => {
     <DashboardContext.Provider value={contextValue}>
       <div className="relative flex flex-row h-screen w-screen">
         <div
-          className={`absolute z-30 bg-white left-0 bottom-0 h-[100vh] w-[45%] md:static md:min-w-[20%] md:w-[20%] transition-transform ${
+          className={`absolute z-30 bg-white left-0 bottom-0 h-[100vh] w-[65%] md:static md:min-w-[20%] md:w-[20%] transition-transform ${
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           } md:translate-x-0`}
         >

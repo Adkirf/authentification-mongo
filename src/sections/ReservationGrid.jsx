@@ -63,7 +63,7 @@ const ReservationList = () => {
   }
 
   return (
-    <div className="overflow-x-scroll w-full h-full p-[20px] hide-scrollbar">
+    <div className="overflow-x-scroll overflow-y-clip w-full h-full p-[20px] hide-scrollbar">
       <div className="flex flex-row gap-8 items-center">
         {reservations.map((reservation, index) => (
           <ReservationCard key={index} reservation={reservation} />
@@ -79,7 +79,8 @@ const ReservationList = () => {
 };
 
 const HorizontalTimeSlots = () => {
-  const { currentDate, fSetCurrentDate } = useContext(DashboardContext);
+  const { currentDate, fSetCurrentDate, fSetCurrentReservation } =
+    useContext(DashboardContext);
 
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
   const timeSlotsContainerRef = useRef(null);
@@ -150,6 +151,7 @@ const HorizontalTimeSlots = () => {
   };
 
   const handleTimeSlotChange = (slot) => {
+    fSetCurrentReservation();
     const [hours, minutes] = slot.split(":").map(Number);
     const newDate = new Date(currentDate);
     newDate.setHours(hours, minutes, 0, 0);

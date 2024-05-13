@@ -91,7 +91,7 @@ export const PeopleCountInput = () => {
           type="number"
           id="peopleCount"
           min="1"
-          className="pt-4 text-xl text-center border-b-2 border-gray-500 w-16 rounded-t-md  focus:border-blue-500 focus:outline-none focus:ring-blue-500 focus:ring-opacity-50"
+          className="pt-4 text-xl text-center border-b-2 border-gray-500 w-16   focus:border-blue-500 focus:outline-none focus:ring-blue-500 focus:ring-opacity-50"
           value={peopleCount}
           onChange={(e) => {
             fSetPeopleCount(e, null);
@@ -150,7 +150,7 @@ export const TableNumberInput = () => {
           <input
             type="number"
             id="tableNumber"
-            className="pt-4 text-xl text-center border-b-2 border-gray-500 w-16 rounded-t-md  focus:border-blue-500 focus:outline-none focus:ring-blue-500 focus:ring-opacity-50"
+            className="pt-4 text-xl text-center border-b-2 border-gray-500 w-16  focus:border-blue-500 focus:outline-none focus:ring-blue-500 focus:ring-opacity-50"
             value={tableNumber || tableNumber == 0 ? tableNumber : ""}
             onChange={(e) => fSetTableNumber(e.target.value)}
           />

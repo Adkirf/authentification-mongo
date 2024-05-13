@@ -34,15 +34,6 @@ const DayGrid = () => {
   const scrollRef = useRef(null);
   const helperRectangleRef = useRef(null);
 
-  /* pixels 
-60
-100
-80
-180
-60 
-80
-180 */
-
   useEffect(() => {
     setReservations(getReservationSlots());
   }, [currentDate, currentReservations, currentReservation]);
@@ -164,12 +155,12 @@ const DayGrid = () => {
     <DayContext.Provider value={dayValue}>
       <div
         ref={scrollRef}
-        className={`grid overflow-scroll relative top-0 z-10 pb-[50vh] `}
-        style={{ overflowAnchor: "none" }}
+        className={`grid  overflow-scroll relative top-0 z-10 pb-[50vh] `}
+        style={{ gridTemplateColumns: "60px", overflowAnchor: "none" }}
       >
         <div
           ref={helperRectangleRef}
-          className=" w-[35px] h-[20px] md:w-[100px] md:h-[80px] flex items-center bg-white z-30 row-start-1 col-start-1 sticky top-0 left-0"
+          className="w-[100px] h-[80px]flex items-center bg-white z-30 row-start-1 col-start-1 sticky top-0 left-0"
         >
           <DurationPicker
             indexSpan={indexSpan}
@@ -233,7 +224,7 @@ const DayGrid = () => {
           )
         )}
         <div className="grid absolute top-0  z-0 ">
-          <span className="w-[35px] h-[20px] md:w-[100px] md:h-[80px] bg-white z-20 row-start-1 col-start-1 sticky left-0" />
+          <span className="w-[60px] h-[80px] bg-white z-20 row-start-1 col-start-1 sticky left-0" />
 
           {getTableSlots().map((table, index) => (
             <div
