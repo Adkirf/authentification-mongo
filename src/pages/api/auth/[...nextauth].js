@@ -22,7 +22,6 @@ const authOptions = {
         try {
           const user = await User.findOne({ name: credentials.name });
 
-          console.log(user);
           if (user) {
             const isPasswordCorrect = await bcrypt.compare(
               credentials.password,

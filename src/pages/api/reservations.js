@@ -497,7 +497,6 @@ export default async function handler(req, res) {
     case "PUT":
       try {
         if (!_id) {
-          console.log("here");
           return res.status(400).json({
             severity: "error",
             message: "Invalid reservation id",
@@ -526,7 +525,6 @@ export default async function handler(req, res) {
           changeReservation = { ...changeReservation, log: log };
           subReservation = { ...subReservation, log: log };
         }
-        console.log(tableNumber);
 
         let changeTable = await Table.findOne({ tableNumber: tableNumber });
 

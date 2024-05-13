@@ -351,7 +351,7 @@ const App = () => {
   };
 
   const addAlert = (severity, message, reservation) => {
-    if (severity != "success")
+    if (severity != "success" && severity != "info")
       logAlert(
         { severity, message, reservation },
         reservation ? reservation.name : "UI problem"

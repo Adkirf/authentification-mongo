@@ -1,0 +1,17 @@
+{
+  "name": "Reservation Book",
+  "short_name": "App",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/assets/addIcon1.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    }
+  ],
+
+  "background_color": "#FFFFFF",
+  "theme_color": "#FFFFFF"
+}

@@ -55,9 +55,7 @@ export const DurationPicker = ({ indexSpan, onSelect, isDropDown }) => {
       {isOpen && (
         <div
           ref={dropdownRef}
-          className={`absolute left-0 w-full max-h-40 overflow-auto bg-white shadow-md mt-1 z-10 ${
-            isDropDown ? "bottom-full" : "-top-40"
-          } md:bottom-auto`}
+          className={`absolute left-0 w-full max-h-40 overflow-auto  bg-white shadow-md mt-1 z-10 `}
         >
           <div
             className="py-1"
