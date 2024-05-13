@@ -101,12 +101,12 @@ function getBaseUrl() {
   if (typeof window === "undefined") {
     // Server-side
     console.log("from server");
-    console.log();
+    console.log(process.env.BASEURL);
     return process.env.BASEURL || "http://localhost:3000/"; // Use relative URLs for server-side calls
   } else {
     // Client-side
     console.log("from client");
-
+    console.log(process.env.NEXT_PUBLIC_BASEURL);
     return process.env.NEXT_PUBLIC_BASEURL || "http://localhost:3000/"; // This needs to be exposed to the client-side
   }
 }
@@ -308,7 +308,11 @@ export async function changeReservation(changeReservationId, newReservation) {
       (!newReservation.tableNumber && newReservation.tableNumber != 0) ||
       newReservation.findBestTable
     ) {
-      const tableNumber = await findBestTable(newReservation).tableNumber;
+      const tableNumber = (await findBestTable(newReservation)).tableNumber;
+
+      if (!tableNumber && tableNumber != 0) {
+        throw { severity: "error", message: "error in find best table" };
+      }
       newReservation = {
         ...newReservation,
         tableNumber: tableNumber,
@@ -380,6 +384,7 @@ export async function deleteReservation(reservation) {
 // TABLES
 export async function getTables() {
   try {
+    console.log(`${getBaseUrl()}api/tables`);
     const response = await fetch(`${getBaseUrl()}api/tables`, {
       method: "GET",
       headers: {

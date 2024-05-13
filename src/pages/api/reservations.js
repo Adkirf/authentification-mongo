@@ -542,6 +542,7 @@ export default async function handler(req, res) {
           changeReservation = { ...changeReservation, log: log };
           subReservation = { ...subReservation, log: log };
         }
+        console.log(tableNumber);
 
         let changeTable = await Table.findOne({ tableNumber: tableNumber });
 
