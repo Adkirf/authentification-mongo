@@ -1,6 +1,7 @@
 // pages/api/tables.js
 
 import Table from "@/models/Table";
+import dbConnect from "../../utils/mydb";
 
 export default async function handler(req, res) {
   const {
