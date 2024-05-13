@@ -30,7 +30,7 @@ const DayGrid = () => {
 
   const [reservations, setReservations] = useState([]);
   const [possibleReservations, setPossibleReservations] = useState([]);
-  const [indexSpan, setIndexSpan] = useState(1);
+  const [indexSpan, setIndexSpan] = useState(2);
   const scrollRef = useRef(null);
   const helperRectangleRef = useRef(null);
 

@@ -1,12 +1,25 @@
 import MakeButton from "@/components/MakeButton";
 import { DashboardContext } from "@/pages/dashboard";
 import React, { useContext } from "react";
+import { useRouter } from "next/router";
 
+import QuizIcon from "@mui/icons-material/Quiz";
 const SideBar = () => {
   const { dateLevel, fSetDateLevel } = useContext(DashboardContext);
+  const router = useRouter();
 
   return (
     <div className="h-full pl-4 pb-[12vh] justify-end border-r flex flex-col lg:flex-col-reverse gap-4 overflow-hidden">
+      <div className="flex justify-start py-16">
+        <button
+          onClick={() => router.push("/")}
+          className="flex h-[40px] w-[130px] gap-2 text-gray-700 font-black"
+        >
+          <QuizIcon />
+          <h4 className="text-gray-700 font-black ">TUTORIAL</h4>
+        </button>
+      </div>
+
       <div className="flex justify-center">
         <div className="h-[40px] w-[130px]">
           <MakeButton />
