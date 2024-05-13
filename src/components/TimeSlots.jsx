@@ -81,10 +81,6 @@ const TimeSlots = ({ isBackground }) => {
             index === currentTimeSlots.length - 1 ||
             currentTimeSlots[index + 1] === null
           ) {
-            console.log(index === currentTimeSlots.length - 1);
-            console.log(currentTimeSlots[index + 1] === null);
-            console.log(startSlot);
-            console.log(slot);
             if (startSlot !== null) {
               result.push({
                 tableNumber: table.tableNumber,

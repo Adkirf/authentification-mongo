@@ -24,9 +24,9 @@ const Home = () => {
   }, [session]);
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center px-4 md:px-0">
+    <div className="flex h-screen w-screen items-center justify-center md:px-0">
       {isPWA ? (
-        <div className="flex flex-col gap-8 w-full max-w-[500px] justify-center">
+        <div className="flex flex-col mx-4 gap-8 w-full max-w-[500px] justify-center">
           <h1 className="text-gray-700 font-black text-4xl md:text-5xl leading-[125%]	 ">
             <span className="text-blue-500">Welcome</span> to your Reservation
             Book!
@@ -54,7 +54,26 @@ const Home = () => {
           </div>
         </div>
       ) : (
-        <div>Download the app</div>
+        <div className="w-full h-full bg-gray-200 p-4">
+          <div className="flex flex-col gap-4 w-full max-w-[500px] justify-center items-center mt-8">
+            <div className="w-[100px] h-[100px]">
+              <img className="rounded-xl" src="/assets/addIcon2.png" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-700">
+              Add to Home Screen
+            </h3>
+            <p>You need to add this website to your home screen.</p>
+
+            <div className="border border-gray-400 rounded-xl p-4 mt-8">
+              <p>1. In your browser, tap the share button.</p>
+              <img src="/assets/share.png" />
+            </div>
+            <div className="border border-gray-400 rounded-xl p-4">
+              <p>2. Add to your Home Screen.</p>
+              <img src="/assets/addtohomescreen.png" />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
