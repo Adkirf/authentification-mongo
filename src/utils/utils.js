@@ -111,7 +111,6 @@ function getBaseUrl() {
 
 // RESERVATIONS
 function isInvalid(reservation) {
-  console.log(reservation);
   if (
     !reservation.contact ||
     !reservation.name ||
@@ -148,7 +147,6 @@ async function findBestTable(reservation) {
   let tables = [];
   try {
     tables = (await getTables()).data;
-    console.log(tables);
   } catch (e) {
     console.log(e);
     throw { severity: "error", message: "unable to get tables" };
@@ -255,7 +253,10 @@ export async function makeReservation(reservation) {
       reservation.findBestTable
     ) {
       const tableNumber = (await findBestTable(reservation)).tableNumber;
-      console.log(tableNumber);
+
+      if (!tableNumber && tableNumber != 0) {
+        throw { severity: "error", message: "error in find best table" };
+      }
       reservation = {
         ...reservation,
         tableNumber: tableNumber,
