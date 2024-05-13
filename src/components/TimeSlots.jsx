@@ -47,51 +47,75 @@ const TimeSlots = ({ isBackground }) => {
       return;
     }
     const possibleReservations = tables.map((table) => {
+      // Initialize the time slots for this table
       const currentTimeSlots = [];
-
       for (let i = 0; i <= indexSpan; i++) {
         currentTimeSlots.push(currentTimeSlotIndex + i);
       }
-      const maxTimeSlot = currentTimeSlots[currentTimeSlots.length - 1];
 
+      // Apply existing reservations to nullify conflicting slots
       const tableReservations = reservations.filter(
-        (tableReservation) => tableReservation.tableNumber == table.tableNumber
+        (reservation) => reservation.tableNumber === table.tableNumber
       );
-
-      tableReservations.forEach((tableReservation) => {
-        currentTimeSlots.forEach((timeSlot, index) => {
+      tableReservations.forEach((reservation) => {
+        for (let i = 0; i < currentTimeSlots.length; i++) {
           if (
-            tableReservation.startSlot <= timeSlot &&
-            tableReservation.endSlot > timeSlot
+            reservation.startSlot <= currentTimeSlots[i] &&
+            reservation.endSlot > currentTimeSlots[i]
           ) {
-            currentTimeSlots[index + 1] = null;
+            currentTimeSlots[i] = null; // Nullify this slot
           }
-        });
-      });
-
-      let startSlot = currentTimeSlots[0];
-
-      const res = currentTimeSlots.map((slot, index) => {
-        if ((slot || slot == 0) && !currentTimeSlots[index + 1]) {
-          if (startSlot == slot) {
-            return;
-          }
-
-          return {
-            tableNumber: table.tableNumber,
-            peopleCount: table.seats,
-            startSlot: startSlot,
-            endSlot: slot,
-          };
-        }
-        if (!(slot || slot == 0) && currentTimeSlots[index + 1]) {
-          startSlot = currentTimeSlots[index + 1] - 1;
         }
       });
 
-      const filtered = res.filter((res) => res);
+      // Collect blocks of available slots
+      const result = [];
+      let startSlot = null; // Start of a new available block
+      currentTimeSlots.forEach((slot, index) => {
+        if (slot !== null) {
+          if (startSlot === null) {
+            startSlot = slot; // Start a new block
+          }
+          // Check if it's the last slot in the array or next slot is null
+          if (
+            index === currentTimeSlots.length - 1 ||
+            currentTimeSlots[index + 1] === null
+          ) {
+            console.log(index === currentTimeSlots.length - 1);
+            console.log(currentTimeSlots[index + 1] === null);
+            console.log(startSlot);
+            console.log(slot);
+            if (startSlot !== null) {
+              result.push({
+                tableNumber: table.tableNumber,
+                peopleCount: table.seats,
+                startSlot: startSlot,
+                endSlot: currentTimeSlots[index + 1] === null ? slot + 1 : slot,
+              });
+              startSlot = null; // Close this block
+            }
+          }
+        } else {
+          if (startSlot !== null) {
+            // End the current block at the previous slot
+            result.push({
+              tableNumber: table.tableNumber,
+              peopleCount: table.seats,
+              startSlot: startSlot,
+              endSlot: currentTimeSlots[index - 1],
+            });
+            startSlot = null; // Reset the start slot
+          }
+        }
+      });
 
-      return filtered;
+      // Debug logs for specific table numbers
+      if (table.tableNumber === 0) {
+        console.log("Current Time Slots:", currentTimeSlots);
+        console.log("Possible Reservations:", result);
+      }
+
+      return result.filter((res) => res.startSlot != res.endSlot);
     });
 
     fSetPossibleReservations(possibleReservations.flat());
