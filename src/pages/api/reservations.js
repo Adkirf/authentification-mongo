@@ -344,13 +344,6 @@ export default async function handler(req, res) {
             },
           }).sort({ start: 1 });
 
-          if (reservations.length === 0) {
-            return res.status(200).json({
-              severity: "warning",
-              message: "no reservations this month",
-              data: reservations,
-            });
-          }
           return res.status(200).json({
             severity: "success",
             message: "successfuly retrieved monhtly reservation",
@@ -422,7 +415,6 @@ export default async function handler(req, res) {
           status: status === "checked" ? "checked" : "unchecked",
           comment: comment,
         };
-        console.log(reservation);
 
         let subReservation = {
           _id: id,
@@ -432,14 +424,10 @@ export default async function handler(req, res) {
           end: end,
         };
 
-        console.log(subReservation);
-
         if (log) {
           reservation = { ...reservation, log: log };
           subReservation = { ...subReservation, log: log };
         }
-
-        console.log("after log chekc");
 
         const tableResponse = await fetch(
           `${baseURL}api/tables?tableNumber=${tableNumber}`,
@@ -454,8 +442,6 @@ export default async function handler(req, res) {
           }
         );
 
-        console.log("table response");
-        console.log(tableResponse);
         const data = await tableResponse.json();
 
         if (!tableResponse.ok) {
@@ -574,7 +560,7 @@ export default async function handler(req, res) {
           );
           const lastDayOfMonth = new Date(
             now.getFullYear(),
-            parseint(now.getMonth()) + parseInt(1),
+            parseInt(now.getMonth()) + parseInt(1),
             0
           );
 
@@ -591,22 +577,52 @@ export default async function handler(req, res) {
             data: reservations,
           });
         }
-
-        const updatedReservation = await Reservation.findByIdAndUpdate(
-          _id,
+        const updatedReservation = await Reservation.findOneAndUpdate(
+          { _id: _id, status: { $ne: "checked" } }, // Condition to check status is not "checked"
           changeReservation,
           { new: true }
         );
 
         if (!updatedReservation) {
-          return res.status(400).json({
+          const isPreviosUpdatedReservation = await Reservation.findOne(
+            { _id: _id } // Condition to check status is not "checked"
+          );
+
+          if (!isPreviosUpdatedReservation) {
+            const now = new Date();
+            const firstDayOfMonth = new Date(
+              now.getFullYear(),
+              now.getMonth(),
+              1
+            );
+            const lastDayOfMonth = new Date(
+              now.getFullYear(),
+              parseInt(now.getMonth()) + parseInt(1),
+              0
+            );
+
+            const reservations = await Reservation.find({
+              start: {
+                $gte: firstDayOfMonth,
+                $lte: lastDayOfMonth,
+              },
+            }).sort({ start: 1 });
+
+            return res.status(400).json({
+              severity: "error",
+              message:
+                "The reservation to change is invalid. Refresh the page.",
+            });
+          }
+          return res.status(200).json({
             severity: "error",
-            message: "Error while updating reservation",
+            message: "reservation was checked-in by someone else.",
+            data: isPreviosUpdatedReservation,
           });
         }
 
         if (log) {
-          return res.status(200).json({
+          return res.status(400).json({
             severity: "warning",
             message: "Reservation was forced succesfully",
             data: updatedReservation,

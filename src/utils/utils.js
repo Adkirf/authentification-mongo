@@ -100,18 +100,35 @@ export async function getAvailableTables() {
 function getBaseUrl() {
   if (typeof window === "undefined") {
     // Server-side
-    console.log("from server");
-    console.log(process.env.BASEURL);
+
     return process.env.BASEURL || "http://localhost:3000/"; // Use relative URLs for server-side calls
   } else {
     // Client-side
-    console.log("from client");
-    console.log(process.env.NEXT_PUBLIC_BASEURL);
+
     return process.env.NEXT_PUBLIC_BASEURL || "http://localhost:3000/"; // This needs to be exposed to the client-side
   }
 }
 
 //!!!! For all errors or behavior-to-be-observed, add a comment to the corresponding reservation, table or user!!!!!!
+export async function logAlert(alert, reservationName) {
+  try {
+    const response = await fetch(`${getBaseUrl()}api/alerts`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...{ ...alert, reservationName },
+      }),
+    });
+    if (!response.ok) {
+      console.log("not able to log alert");
+    }
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
 
 // RESERVATIONS
 function isInvalid(reservation) {
@@ -343,9 +360,8 @@ export async function changeReservation(changeReservationId, newReservation) {
       const data = await response.json();
       throw data;
     }
-    const res = await response.json();
-    console.log(res);
-    return res;
+
+    return await response.json();
   } catch (e) {
     console.log(e);
     throw e;

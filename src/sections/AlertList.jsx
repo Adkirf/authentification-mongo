@@ -9,7 +9,7 @@ const AlertList = () => {
     <div className="fixed flex flex-col top-4 md:top-auto md:bottom-4 right-4 gap-2 z-[100]">
       {alerts.map((alert, index) => (
         <AlertTile
-          key={alert.id + index}
+          key={alert.id}
           message={alert.message}
           severity={alert.severity}
           id={alert.id}

@@ -15,9 +15,25 @@ import {
   makeReservation,
   deleteReservation,
   changeReservation,
+  logAlert,
 } from "../utils/utils.js";
 
 export const DashboardContext = createContext();
+
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
 const App = () => {
   const { data: session } = useSession();
@@ -87,9 +103,7 @@ const App = () => {
       reservations = [];
       addAlert("error", "null reservation loaded");
     }
-    if (reservations.length === 0) {
-      addAlert("warning", "no reservations this month");
-    }
+
     reservations.forEach((reservation) => {
       reservation.start = new Date(reservation.start);
       reservation.end = new Date(reservation.end);
@@ -125,7 +139,17 @@ const App = () => {
         return;
       }
       if (newDate.getMonth() !== currentDate.getMonth()) {
+        addAlert(
+          "info",
+          `loading reservations of ${months[newDate.getMonth()]}`
+        );
         tempReservations = (await getReservations(newDate.getMonth())).data;
+        addAlert(
+          "info",
+          `${tempReservations.length} reservations in ${
+            months[newDate.getMonth()]
+          }`
+        );
         fSetCurrentReservations(tempReservations);
       }
     } catch (e) {
@@ -179,15 +203,18 @@ const App = () => {
     try {
       if (!newReservation && reservation._id) {
         console.log(`delete Reservation: ${reservation}`);
-        const response = await deleteReservation(reservation);
-        await sleep(3000);
+        addAlert("info", "deleting resevation", reservation);
+        const [response] = await Promise.all([
+          deleteReservation(reservation),
+          sleep(3000),
+        ]);
         await fSetCurrentDate(new Date(reservation.start));
         setCurrentReservations((currentReservations) =>
           currentReservations.filter(
             (currentReservation) => currentReservation._id != response.data._id
           )
         );
-        if (currentReservation._id == reservation._id) {
+        if (currentReservation && currentReservation._id == reservation._id) {
           fSetCurrentReservation();
         }
         addAlert(response.severity, response.message, response.data);
@@ -205,6 +232,10 @@ const App = () => {
         console.log(
           `making new Reservation: ${JSON.stringify(newReservation)}`
         );
+        addAlert("info", "making new resevation", {
+          _id: 1,
+          name: newReservation.name,
+        });
         const response = await makeReservation(newReservation);
         const resReservation = response.data;
         resReservation.start = new Date(resReservation.start);
@@ -216,7 +247,10 @@ const App = () => {
         fSetCurrentReservation(resReservation);
         fSetCurrentReservations([...currentReservations, resReservation]);
 
-        addAlert(response.severity, response.message, newReservation);
+        addAlert(response.severity, response.message, {
+          _id: 1,
+          name: newReservation.name,
+        });
         return;
       }
     } catch (e) {
@@ -237,7 +271,7 @@ const App = () => {
         };
 
         await fSetCurrentReservation(updated);
-        addAlert(e.severity, e.message, newReservation);
+        addAlert(e.severity, e.message, { _id: 1, name: newReservation.name });
         return;
       }
       if (e.severity === "error") {
@@ -251,7 +285,7 @@ const App = () => {
         addAlert(e.severity, e.message, newReservation);
         return;
       } else {
-        addAlert("error", "unexpected error");
+        addAlert("error", "unexpected error", { _id: 1 });
         throw e;
       }
     }
@@ -260,7 +294,7 @@ const App = () => {
     try {
       if (reservation._id && newReservation) {
         console.log(`changing Reservation: ${JSON.stringify(newReservation)}`);
-        console.log(reservation._id);
+        addAlert("info", "changing resevation", reservation);
         const response = await changeReservation(
           reservation._id,
           newReservation
@@ -296,7 +330,7 @@ const App = () => {
           await fSetCurrentReservations(e.data);
         }
         await fSetCurrentReservation(updated);
-        addAlert(e.severity, e.message, newReservation);
+        addAlert(e.severity, e.message, reservation);
         return;
       }
       if (e.severity === "error") {
@@ -316,8 +350,12 @@ const App = () => {
     }
   };
 
-  let lastId;
   const addAlert = (severity, message, reservation) => {
+    if (severity != "success")
+      logAlert(
+        { severity, message, reservation },
+        reservation ? reservation.name : "UI problem"
+      );
     if (reservation) {
       setAlerts((prevAlerts) => [
         ...prevAlerts.filter((prevAlert) => prevAlert.id != reservation._id),
@@ -325,11 +363,10 @@ const App = () => {
       ]);
       return;
     }
-    const id = new Date().getTime();
-    if (id != lastId) {
-      setAlerts((prevAlerts) => [...prevAlerts, { severity, message, id }]);
-      lastId = id;
-    }
+    setAlerts((prevAlerts) => [
+      ...prevAlerts.filter((prevAlert) => prevAlert.id !== 0),
+      { severity, message, id: 0 },
+    ]);
   };
 
   const removeAlert = (alertId) => {

@@ -268,11 +268,6 @@ const ReservationCard = ({ reservation }) => {
       }
     }
 
-    addAlert(
-      "info",
-      "submitting changes, please wait",
-      newReservation ? newReservation : reservation
-    );
     fSetLoading(true);
     fSetDateLevel("time");
     try {
