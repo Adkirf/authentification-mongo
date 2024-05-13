@@ -620,7 +620,7 @@ export default async function handler(req, res) {
         }
 
         if (log) {
-          return res.status(400).json({
+          return res.status(200).json({
             severity: "warning",
             message: "Reservation was forced succesfully",
             data: updatedReservation,

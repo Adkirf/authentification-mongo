@@ -307,6 +307,7 @@ const App = () => {
             return currentReservation;
           }
         );
+        console.log(updatedReservations);
         const resReservation = response.data;
         resReservation.start = new Date(resReservation.start);
         resReservation.end = new Date(resReservation.end);

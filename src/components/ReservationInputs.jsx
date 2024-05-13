@@ -46,7 +46,7 @@ export const ContactInput = () => {
         Email or Phone:
       </label>
       <input
-        type={/[a-zA-Z]/.test(contact[0]) ? "email" : "number"}
+        type="text" /* {/[a-zA-Z]/.test(contact[0]) ? "email" : "number"} */
         disabled={
           !(
             status === "change" ||
@@ -91,7 +91,7 @@ export const PeopleCountInput = () => {
           type="number"
           id="peopleCount"
           min="1"
-          className="pt-4 text-xl text-center border-b-2 border-gray-500 w-16   focus:border-blue-500 focus:outline-none focus:ring-blue-500 focus:ring-opacity-50"
+          className="pt-4 text-xl text-center border-b-2 border-gray-500 w-16  focus:border-blue-500 focus:outline-none focus:ring-blue-500 focus:ring-opacity-50"
           value={peopleCount}
           onChange={(e) => {
             fSetPeopleCount(e, null);
