@@ -30,7 +30,7 @@ const DayGrid = () => {
 
   const [reservations, setReservations] = useState([]);
   const [possibleReservations, setPossibleReservations] = useState([]);
-  const [indexSpan, setIndexSpan] = useState(2);
+  const [indexSpan, setIndexSpan] = useState(1);
   const scrollRef = useRef(null);
   const helperRectangleRef = useRef(null);
 
@@ -155,8 +155,8 @@ const DayGrid = () => {
     <DayContext.Provider value={dayValue}>
       <div
         ref={scrollRef}
-        className={`grid  overflow-scroll relative top-0 z-10 pb-[50vh] `}
-        style={{ gridTemplateColumns: "60px", overflowAnchor: "none" }}
+        className={`grid grid-cols-[50px] md:grid-cols-[60px]  overflow-scroll relative top-0 z-10 pb-[50vh] `}
+        style={{ overflowAnchor: "none" }}
       >
         <div
           ref={helperRectangleRef}
@@ -175,26 +175,26 @@ const DayGrid = () => {
             style={{
               gridColumn: `${table.tableNumber + 2}/${table.tableNumber + 3}`,
             }}
-            className={`row-start-1  bg-white w-[180px] py-2 px-2 sticky z-20 top-0 flex flex-col justify-center`}
+            className={`row-start-1  bg-white w-full md:w-[180px] py-2 px-2 sticky z-20 top-0 flex flex-col justify-center`}
           >
             <div className="flex justify-center">
-              <span className="flex w-1/3" />
+              {/* <span className="flex w-1/3" /> */}
               <span className="flex w-1/3  font-base justify-center">
                 {" "}
                 Table{" "}
               </span>
-              <span className="flex w-1/3 text-sm font-thin"> /Seats</span>
+              {/* <span className="flex w-1/3 text-sm font-thin"> /Seats</span> */}
             </div>
             <div className="flex justify-center">
-              <span className="flex w-1/3" />
+              {/* <span className="flex w-1/3" /> */}
               <span className="flex w-1/3 text-2xl font-bold justify-center">
                 {" "}
                 {table.tableNumber}{" "}
               </span>
-              <span className="flex w-1/3 text-sm font-thin">
+              {/*  <span className="flex w-1/3 text-sm font-thin">
                 {" "}
                 /{table.seats}
-              </span>
+              </span> */}
             </div>
 
             <span className="absolute z-30 bottom-0 left-0 w-[1px] bg-gray-100 h-[25px] " />
@@ -224,7 +224,7 @@ const DayGrid = () => {
           )
         )}
         <div className="grid absolute top-0  z-0 ">
-          <span className="w-[60px] h-[80px] bg-white z-20 row-start-1 col-start-1 sticky left-0" />
+          <span className="w-[50px] md:w-[60px] h-[80px] bg-white z-20 row-start-1 col-start-1 sticky left-0" />
 
           {getTableSlots().map((table, index) => (
             <div
@@ -232,7 +232,7 @@ const DayGrid = () => {
               style={{
                 gridColumn: `${table.tableNumber + 2}/${table.tableNumber + 3}`,
               }}
-              className={` row-start-1 col-span-1  bg-white w-[180px]  sticky -left-60 z-10 top-0 flex justify-start`}
+              className={` row-start-1 col-span-1  bg-white w-full md:w-[180px]  sticky -left-60 z-10 top-0 flex justify-start`}
             >
               <span className="absolute h-[200vh] w-[1px] bg-gray-100" />
             </div>

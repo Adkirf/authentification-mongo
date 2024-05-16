@@ -1,0 +1,160 @@
+{
+  "tutorials": [
+    {
+      "title": "{name} Calls",
+      "description": "{name} wants to reserve a table for {peopleCount} people for the {date}",
+      "steps": [
+        {
+          "stepTitle": "Click on the Make Button and Make the reservation for {name}",
+          "tip": "Throug out the App there a different Make Buttons. Depending on which you click, some information will be pre-filled for you.",
+          "help": "fSetCurrentReservation({name, anna@gmail.com, …}}),openReservationCard(),"
+        },
+        {
+          "stepTitle": "Verify if the reservation you just made is ok.",
+          "tip": "A reservation can have different states: A „Change Reservation“ let you see and change information of a reservation, 15 minutes before a reservation starts the reservation automatically switches to Check-In Reservation, whcih gives you only essential information and allows you to „check-in a guest“, after „check-in“ the reservation switches to „Checked“ and shows you the table Number. You can use the menu icon to switch between these states. Once a reservation is checked you cannot switch anymre.",
+          "help": "setCurrentReservation({reservation}), setDateLevel(„day“)"
+        }
+      ],
+      "variables": {
+        "reservation": {}
+      }
+    },
+    {
+      "title": "{name} arrives at the restaurant",
+      "description": "{name} arrived at the restaurant and say’s she has a reservation for {time} and {peopleCount} people. Check-In the reservation and bring her to her table.",
+      "steps": [
+        {
+          "stepTitle": "Go to the Reservations View and use the Time Picker to select today.",
+          "tip": "In the Reservation view you see all reservation that intersect a specific time. You can click at TimeSlots to change the selected time, or use the arrows to switch to the next or previos reservation.",
+          "help": "setCurrentDate(new Date()), setDatelevel(„day)"
+        },
+        {
+          "stepTitle": "Verify if the reservation you just made is ok.",
+          "tip": "A reservation can have different states: A „Change Reservation“ let you see and change information of a reservation, 15 minutes before a reservation starts the reservation automatically switches to Check-In Reservation, whcih gives you only essential information and allows you to „check-in a guest“, after „check-in“ the reservation switches to „Checked“ and shows you the table Number. You can use the menu icon to switch between these states. Once a reservation is checked you cannot switch anymre.",
+          "help": "setCurrentReservation({reservation}), setDateLevel(„day“)"
+        },
+        {
+          "stepTitle": "Find {name}s reservation with the correct people Count and press „check-in“ to get the table number.",
+          "tip": "Reservations will automatically switch to „Check-In“ 15 minutes before the reservation start. You can use the menu icon to manually switch the check-in to change or vise versa. ",
+          "help": "reservation.status=check-in, fSetCurrentReservation({reservation)}, setDateLevel(Day),"
+        },
+        {
+          "stepTitle": "Get the table Number",
+          "tip": "Before you make a reservation you can either manually input the table number, or you can use the „find best table“ option, to automaticall check for the best table. This will check for the best table when the reservation is created, and before check-in the reservation, so you can make sure the tables are assinged optimally.",
+          "help": ""
+        }
+      ],
+      "variables": {
+        "reservation": {
+          "_id": ""
+        }
+      }
+    },
+    {
+      "title": "{name} doesnt care about the time",
+      "description": "{name} wants to make a reservation for {date} and {peopleCount} but he doesnt care about the time. Find a best table for him.",
+      "steps": [
+        {
+          "stepTitle": "Go to the Month View and select the {date}.",
+          "tip": "You can use the arrows to switch month or the Month Picker to go to specific month.",
+          "help": "dateLevel(„month“), pause, fSetCurrentDate({date}}, pause, setDateLevel(„Month“)"
+        },
+        {
+          "stepTitle": "Use the Duration Picker to find avaiable reservations.",
+          "tip": "After selecting a day in the Month View you will get to the Day View. Here you can see all tables and corresponding reservation of a day. This view is the best way to get an overview of a day and find available reservation. With the Duration Picker you set the duration of the reservation you a are trying to find.",
+          "help": "fSetCurrentDate(date), setDateLevel(„Day“), toggleDuration()"
+        },
+        {
+          "stepTitle": "Use the Make Buttons to prefill a Make Reservation.",
+          "tip": "when you click on a make button you can open a Make Reservation Card, with the  tableNumber, peopleCount, start and end time prefilled for you. ",
+          "help": "fSetCurrentDate(date), setDateLevel(„Day“), toggleDuration(),"
+        }
+      ],
+      "variables": {
+        "reservation": {}
+      }
+    },
+    {
+      "title": "{name} forgot the time",
+      "description": "{name} calls you because he made a reservation for {date} but forgot when exactly. Help out and find the reservation.",
+      "steps": [
+        {
+          "stepTitle": "Go to the reservations view and use the month picker to select the Month.",
+          "tip": "Selecting a month will get you to the first reservation of the month.",
+          "help": "setDateLevel(Day), openMonthPicker()"
+        },
+        {
+          "stepTitle": "Browse through the reservation until you find {name}s reservation.",
+          "tip": "The Arrow Buttons are the best way to browse through your reservation.",
+          "help": ""
+        }
+      ],
+      "variables": {
+        "reservation": {
+          "_id": ""
+        }
+      }
+    },
+    {
+      "title": "{name} wants to double-check",
+      "description": "{name} is not sure for how many people she reserved and wants to make sure {peopleCountExtended} people have seat",
+      "steps": [
+        {
+          "stepTitle": "Go to the reservations view and use the month picker to select {month}.",
+          "tip": "Selecting a month will get you to the first reservation of the month.",
+          "help": "setDateLevel(Day), openMonthPicker()"
+        },
+        {
+          "stepTitle": "Browse through the reservation until you find {name}s reservation.",
+          "tip": "The Arrow Buttons are the best way to browse through your reservations.",
+          "help": ""
+        }
+      ],
+      "variables": {
+        "reservation": {
+          "_id": ""
+        }
+      }
+    },
+    {
+      "title": "{name} will not make it.",
+      "description": "{name} calls, and wants to cancel a reservation she made for {date}. Find the reservation and delete it.",
+      "steps": [
+        {
+          "stepTitle": "Go to the reservations view and use the month picker to select {month}.",
+          "tip": "Selecting a month will get you to the first reservation of the month.",
+          "help": "setDateLevel(Day), openMonthPicker()"
+        },
+        {
+          "stepTitle": "Browse through the reservation until you find {name}s reservation.",
+          "tip": "The Arrow Buttons are the best way to browse through your reservation.",
+          "help": ""
+        }
+      ],
+      "variables": {
+        "reservation": {
+          "_id": ""
+        }
+      }
+    },
+    {
+      "title": "{name} has birthday.",
+      "description": "{name} calls and wants a table for 12 people. You have no table for 12 person but you know that you can join table 4 and 5 and add some seats",
+      "steps": [
+        {
+          "stepTitle": "Go to the reservations view and use the month picker to select {month}.",
+          "tip": "Selecting a month will get you to the first reservation of the month.",
+          "help": "setDateLevel(Day), openMonthPicker()"
+        },
+        {
+          "stepTitle": "Browse through the reservation until you find {Tim}s reservation.",
+          "tip": "The Arrow Buttons are the best way to browse through your reservation.",
+          "help": ""
+        }
+      ],
+      "variables": {
+        "reservation": {}
+      }
+    }
+  ]
+}

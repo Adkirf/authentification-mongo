@@ -1,3 +1,41 @@
+const names = [
+  "Max",
+  "Ana",
+  "Leo",
+  "Eva",
+  "Ian",
+  "Zoe",
+  "Jay",
+  "Lia",
+  "Roy",
+  "Kai",
+  "Ava",
+  "Ben",
+  "Sam",
+  "Mia",
+  "Tom",
+  "Ada",
+  "Ivy",
+  "Eli",
+  "Sky",
+  "Ned",
+];
+
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
 export function formatDate(date) {
   const year = date.getFullYear();
   const month = ("0" + (date.getMonth() + 1)).slice(-2); // Months are zero-based
@@ -164,7 +202,7 @@ function isInvalid(reservation) {
   return false;
 }
 
-async function findBestTable(reservation) {
+export async function findBestTable(reservation) {
   let tables = [];
   try {
     tables = (await getTables()).data;
@@ -420,4 +458,160 @@ export async function getTables() {
     console.log(e);
     throw e;
   }
+}
+
+export async function getTutorials(tutorialJson, reservations, tables) {
+  const isPossible = (reservation) => {
+    let availableTables = [];
+    tables.forEach((table) => {
+      const isIntersecting = table.reservations.some((tableReservation) => {
+        const tableReservationStart = new Date(
+          tableReservation.start
+        ).getTime();
+        const tableReservationEnd = new Date(tableReservation.end).getTime();
+        const reservationStart = reservation.start.getTime();
+        const reservationEnd = reservation.end.getTime();
+
+        return (
+          reservationStart < tableReservationEnd &&
+          reservationEnd > tableReservationStart &&
+          tableReservation._id != reservation._id
+        );
+      });
+
+      if (!isIntersecting) {
+        availableTables.push(table);
+      }
+    });
+
+    if (availableTables.length < 1) {
+      return false;
+    }
+
+    availableTables.sort((a, b) => a.seats - b.seats);
+    const suitableTable = availableTables.find(
+      (table) => table.seats >= reservation.peopleCount
+    );
+
+    if (!suitableTable) {
+      return false;
+    }
+
+    return suitableTable.tableNumber;
+  };
+
+  const getRandomFutureDate = () => {
+    // Get the current date
+    const currentDate = new Date();
+
+    // Add random days to the current date (0 to 29 days in the future)
+    const futureDays = Math.floor(Math.random() * 30);
+    currentDate.setDate(currentDate.getDate() + futureDays);
+
+    // Randomly choose an hour between 8 AM (8) and 11 PM (23)
+    const hour = Math.floor(Math.random() * 16) + 8;
+    currentDate.setHours(hour);
+
+    // Randomly choose the minute to be either 00 or 30
+    const minute = Math.random() < 0.5 ? 0 : 30;
+    currentDate.setMinutes(minute);
+    currentDate.setSeconds(0);
+    currentDate.setMilliseconds(0);
+
+    return currentDate;
+  };
+
+  const findPossibleReservation = () => {
+    let possibleReservation = false;
+    const name = names[Math.floor(Math.random() * names.length)];
+    const peopleCount = Math.floor(Math.random() * 5) + 2;
+    const contact = "example@gmail.com";
+
+    while (!possibleReservation) {
+      const start = getRandomFutureDate();
+      const end = new Date(start.getTime());
+      end.setHours(start.getHours() + 1);
+
+      let testReservation = {
+        name: name,
+        contact: contact,
+        tableNumber: "",
+        findBestTable: true,
+        start: start,
+        end: end,
+        peopleCount: peopleCount,
+      };
+
+      const bestTable = isPossible(testReservation);
+
+      if (bestTable) {
+        possibleReservation = {
+          ...testReservation,
+          tableNumber: bestTable,
+        };
+      } else {
+        possibleReservation = bestTable;
+      }
+    }
+    return possibleReservation;
+  };
+
+  const replacePlaceholders = (obj, variables) => {
+    function replaceString(str) {
+      return str.replace(/\{(\w+)\}/g, (match, key) => variables[key] || match);
+    }
+
+    if (typeof obj === "object") {
+      if (Array.isArray(obj)) {
+        return obj.map((item) => replacePlaceholders(item, variables));
+      } else {
+        const replacedObject = {};
+        for (const key in obj) {
+          replacedObject[key] = replacePlaceholders(obj[key], variables);
+        }
+        return replacedObject;
+      }
+    } else if (typeof obj === "string") {
+      return replaceString(obj);
+    } else {
+      return obj;
+    }
+  };
+
+  const fillTutorial = (tutorial) => {
+    let reservation;
+    if (tutorial.variables.reservation._id) {
+      //pick a reservation in future with name in names[]
+      reservation = reservations.find((reservation) =>
+        names.includes(reservation.name)
+      );
+      //if empty create a new reservation
+    } else {
+      reservation = findPossibleReservation();
+    }
+
+    const hours = new Date(reservation.start)
+      .getHours()
+      .toString()
+      .padStart(2, "0");
+    const minutes = new Date(reservation.start)
+      .getMinutes()
+      .toString()
+      .padStart(2, "0");
+    const date = new Date(reservation.start).getDate();
+    const month = months[new Date(reservation.start).getMonth()];
+
+    const variables = {
+      name: reservation.name,
+      peopleCount: reservation.peopleCount,
+      peopleCountExtended: reservation.peopleCount + 2,
+      time: `${hours}:${minutes}`,
+      date: date,
+      month: month,
+    };
+
+    return replacePlaceholders(tutorial, variables);
+  };
+
+  return tutorialJson.tutorials.map((tutorial) => fillTutorial(tutorial));
 }

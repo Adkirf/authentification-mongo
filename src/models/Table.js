@@ -41,7 +41,8 @@ const tableSchema = new Schema(
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
+  { _id: false }
 );
 
 export default mongoose.models.Table || mongoose.model("Table", tableSchema);

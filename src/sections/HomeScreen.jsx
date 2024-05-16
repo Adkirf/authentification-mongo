@@ -9,14 +9,27 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-import Box from "@mui/material/Box";
-import Checkbox from "@mui/material/Checkbox";
-import FormControlLabel from "@mui/material/FormControlLabel";
-
-const HomeScreen = ({ reservations }) => {
+const HomeScreen = () => {
   const router = useRouter();
 
-  const [tutorialStep, setTutorialStep] = useState(0);
+  const { data: session } = useSession();
+
+  const [reservations, setReservations] = useState(false);
+  const [tables, setTables] = useState(false);
+  const [tutorials, setTutorials] = useState();
+
+  useEffect(() => {
+    if (session) {
+      console.log(session);
+      setReservations(session.data.reservations);
+      setTables(session.data.tables);
+      setTutorials(session.data.tutorials);
+    }
+  }, [session]);
+
+  useEffect(() => {
+    console.log(tutorials);
+  }, [tutorials]);
 
   return (
     <div className="flex flex-col mx-4 gap-8 w-full max-w-[500px] justify-center py-12">
@@ -25,7 +38,9 @@ const HomeScreen = ({ reservations }) => {
       </h1>
       <h3 className="text-gray-700 font-semibold  text-xl ">
         You have{" "}
-        <span className="text-blue-500 font-black">{reservations}</span>{" "}
+        <span className="text-blue-500 font-black">
+          {reservations ? reservations.length : "..."}
+        </span>{" "}
         reservations.
       </h3>
       <div className="flex w-full h-full justify-center items-center">
@@ -43,78 +58,23 @@ const HomeScreen = ({ reservations }) => {
       </div>
       <div className="text-gray-700">
         <h4 className=" font-black ">TUTORIAL</h4>
-        <h4 className="pt-4 font-semibold mb-0">Anna is Calling...</h4>
-        <p className="pt-2 text-gray-700 font-base">
-          She wants to book a table for 2 persons in 2 weeks.
-        </p>
-
-        <Accordion defaultExpanded className="bg-gray-200">
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1-content"
-            id="panel1-header"
-          >
-            <Typography>
-              1. Go to the Month View and select the day in two weeks.
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Typography>
-              The Month View helps you to quickly navigate through your
-              reservations. You can also use the Arrow Buttons to browse through
-              the next or previos month, or you can go to a specific month using
-              the MonthPicker between the arrows.
-            </Typography>
-          </AccordionDetails>
-        </Accordion>
-        <Accordion className="bg-gray-200">
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1-content"
-            id="panel1-header"
-          >
-            <Typography>2. Select a Table and Time.</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Typography>
-              In the Reservation View you will see all tables and reservations
-              of a specific day.You can use the Dutation Picker in the upper
-              corner to see all possible reservation within a specific tame.
-            </Typography>
-          </AccordionDetails>
-        </Accordion>
-        <Accordion className="bg-gray-200">
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1-content"
-            id="panel1-header"
-          >
-            <Typography>3. Open a Reservation Card. </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Typography>
-              By tapping on one of the Make Buttons you will open a Make
-              Reservation Card. Depending on the Make Button you tap, the Make
-              Reservation Card will have different information prefield.
-            </Typography>
-          </AccordionDetails>
-        </Accordion>
-        <Accordion className="bg-gray-200">
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1-content"
-            id="panel1-header"
-          >
-            <Typography>4. Make the Reservation. </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Typography>
-              Enter the name of Anna, and a phone number. You can also verify
-              all other information. The find best table option will
-              automatically check for the best tables.
-            </Typography>
-          </AccordionDetails>
-        </Accordion>
+        {tutorials &&
+          tutorials.map((tutorial, index) => (
+            <div key={index}>
+              <Accordion className="bg-gray-200">
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1-content"
+                  id="panel1-header"
+                >
+                  <Typography>{tutorial.title}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Typography>{tutorial.description}</Typography>
+                </AccordionDetails>
+              </Accordion>
+            </div>
+          ))}
       </div>
     </div>
   );

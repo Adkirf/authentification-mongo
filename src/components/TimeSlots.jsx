@@ -8,7 +8,7 @@ const TimeSlots = ({ isBackground }) => {
   const [currentTimeSlotIndex, setCurrentTimeSlotIndex] = useState(0);
   const timeSlotRef = useRef(null);
 
-  const { currentReservation, currentReservations } =
+  const { currentDate, currentReservation, currentReservations } =
     useContext(DashboardContext);
 
   const {
@@ -118,6 +118,7 @@ const TimeSlots = ({ isBackground }) => {
   }, [
     currentTimeSlotIndex,
     indexSpan,
+    currentDate,
     currentReservations,
     currentReservation,
   ]);
@@ -177,8 +178,8 @@ const TimeSlots = ({ isBackground }) => {
           key={index}
           className={
             isBackground
-              ? "w-[60px] h-full min-h-[60px] bg-white col-start-1 z-10  sticky left-0"
-              : "w-[60px] h-full min-h-[60px] flex flex-col items-end  bg-white col-start-1 z-20 py-0 sticky left-0"
+              ? "w-[50px] md:w-[60px] h-full min-h-[40px] md:min-h-[60px] bg-white col-start-1 z-10  sticky left-0"
+              : " w-[50px] md:w-[60px] h-full min-h-[40px] md:min-h-[60px] flex flex-col items-end  bg-white col-start-1 z-20 py-0 sticky left-0"
           }
         >
           {isBackground ? (

@@ -37,7 +37,7 @@ const CalendarGrid = () => {
       key={i}
       className={`py-4 px-2 ${
         currentDate.getDate() == i + 1 ? "bg-blue-300" : "bg-gray-100"
-      } text-center border rounded shadow hover:bg-blue-100`}
+      } text-center border rounded shadow md:hover:bg-blue-100`}
     >
       {i + 1}
     </div>

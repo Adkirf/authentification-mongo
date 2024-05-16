@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+
 import { useRouter } from "next/router";
 
 import HomeScreen from "@/sections/HomeScreen";
 
 const Home = () => {
-  const { data: session } = useSession();
-
-  const [reservations, setReservations] = useState(false);
-
   const [isPWA, setIsPWA] = React.useState(false);
 
   useEffect(() => {
@@ -19,14 +15,10 @@ const Home = () => {
     );
   }, []);
 
-  useEffect(() => {
-    setReservations(session.data.reservations);
-  }, [session]);
-
   return (
     <div className="flex  w-screen items-center justify-center md:px-0">
       {isPWA ? (
-        <HomeScreen reservations={reservations ? reservations.length : "..."} />
+        <HomeScreen />
       ) : (
         <div className="w-full h-screen bg-gray-200 p-4">
           <div className="flex flex-col gap-4 w-full max-w-[500px] justify-center items-center mt-8">

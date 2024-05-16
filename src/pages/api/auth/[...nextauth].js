@@ -5,8 +5,13 @@ import Reservation from "@/models/Reservation.js";
 import Table from "@/models/Table.js";
 import bcrypt from "bcryptjs";
 import dbConnect from "@/utils/mydb";
+import tutorialsJson from "../../../../public/assets/tutorials.json";
 
-import { getReservations, getTables } from "../../../utils/utils.js";
+import {
+  getReservations,
+  getTables,
+  getTutorials,
+} from "../../../utils/utils.js";
 
 const authOptions = {
   // Configure one or more authentication providers
@@ -66,7 +71,19 @@ const authOptions = {
         console.log("failed to load tables in session");
       }
 
-      session.data = { reservations: reservations.data, tables: tables.data };
+      const tutorials = await getTutorials(
+        tutorialsJson,
+        reservations.data,
+        tables.data
+      );
+
+      session.data = {
+        reservations: reservations.data,
+        tables: tables.data,
+        tutorials: tutorials,
+      };
+
+      console.log(session);
       return session;
     },
   },

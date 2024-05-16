@@ -63,12 +63,12 @@ const ReservationList = () => {
   }
 
   return (
-    <div className="overflow-x-scroll overflow-y-clip w-full h-full p-[20px] hide-scrollbar">
+    <div className="flex overflow-x-scroll overflow-y-clip w-full h-full p-[20px] hide-scrollbar">
       <div className="flex flex-row gap-8 items-center">
         {reservations.map((reservation, index) => (
           <ReservationCard key={index} reservation={reservation} />
         ))}
-        <div className="max-w-[300px] w-full flex justify-center">
+        <div className="max-w-[300px] justify-center">
           <div className="h-[50px] w-[150px]">
             <MakeButton />
           </div>
