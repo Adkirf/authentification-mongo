@@ -5,7 +5,6 @@ import { ErrorSharp } from "@mui/icons-material";
 import { DashboardContext } from "@/pages/dashboard";
 
 const TimeSlots = ({ isBackground }) => {
-  const [currentTimeSlotIndex, setCurrentTimeSlotIndex] = useState(0);
   const timeSlotRef = useRef(null);
 
   const { currentDate, currentReservation, currentReservations } =
@@ -17,8 +16,11 @@ const TimeSlots = ({ isBackground }) => {
     getTimeSlots,
     getReservationSlots,
     getTableSlots,
+    possibleReservations,
     fSetPossibleReservations,
     indexSpan,
+    currentTimeSlotIndex,
+    fSetCurrentTimeSlotIndex,
   } = useContext(DayContext);
 
   useEffect(() => {
@@ -104,14 +106,7 @@ const TimeSlots = ({ isBackground }) => {
           }
         }
       });
-
-      // Debug logs for specific table numbers
-      if (table.tableNumber === 0) {
-        console.log("Current Time Slots:", currentTimeSlots);
-        console.log("Possible Reservations:", result);
-      }
-
-      return result.filter((res) => res.startSlot != res.endSlot);
+      return result.filter((res) => res.endSlot - res.startSlot == indexSpan);
     });
 
     fSetPossibleReservations(possibleReservations.flat());
@@ -135,12 +130,12 @@ const TimeSlots = ({ isBackground }) => {
           helperRectangleRef.current.getBoundingClientRect().bottom + 60;
 
         if (scrollRef.current.scrollTop === 0) {
-          setCurrentTimeSlotIndex(0);
+          fSetCurrentTimeSlotIndex(0);
         } else if (
           timeSlotRect.top < helperRect &&
           timeSlotRect.bottom < helperRect
         ) {
-          setCurrentTimeSlotIndex((prevIndex) => {
+          fSetCurrentTimeSlotIndex((prevIndex) => {
             const newIndex = Math.min(prevIndex + 1, getTimeSlots().length - 1);
 
             return newIndex;
@@ -149,7 +144,7 @@ const TimeSlots = ({ isBackground }) => {
           timeSlotRect.top > helperRect &&
           timeSlotRect.bottom > helperRect
         ) {
-          setCurrentTimeSlotIndex((prevIndex) => {
+          fSetCurrentTimeSlotIndex((prevIndex) => {
             const newIndex = Math.max(prevIndex - 1, 0);
             return newIndex;
           });
@@ -178,20 +173,24 @@ const TimeSlots = ({ isBackground }) => {
           key={index}
           className={
             isBackground
-              ? "w-[50px] md:w-[60px] h-full min-h-[40px] md:min-h-[60px] bg-white col-start-1 z-10  sticky left-0"
-              : " w-[50px] md:w-[60px] h-full min-h-[40px] md:min-h-[60px] flex flex-col items-end  bg-white col-start-1 z-20 py-0 sticky left-0"
+              ? " w-[50px] md:w-[60px] h-full min-h-[40px] md:min-h-[60px] bg-white col-start-1 z-10  sticky left-0"
+              : " w-[50px] md:w-[60px] h-full min-h-[40px] md:min-h-[60px] flex flex-col items-end  bg-white col-start-1 z-20  sticky left-0"
           }
         >
           {isBackground ? (
             <span className="absolute  bg-gray-100  w-screen h-[1px] bg-translate-y-[0px]" />
           ) : (
             <span
-              className={`w-[25px] bg-${
-                index === currentTimeSlotIndex ||
-                index === currentTimeSlotIndex + indexSpan
-                  ? "blue-500 h-[3px] w-full"
-                  : "gray-100 h-[1px]"
-              } `}
+              className={`mt-2 w-[25px]  h-[1px] ${
+                currentTimeSlotIndex == index ||
+                currentTimeSlotIndex + indexSpan == index
+                  ? `${
+                      possibleReservations.length
+                        ? "bg-blue-500 h-[3px]"
+                        : "bg-gray-700 h-[3px]"
+                    }`
+                  : "bg-gray-200"
+              }`}
             />
           )}
           <div className="flex w-full justify-center">{time}</div>

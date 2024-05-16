@@ -31,6 +31,7 @@ const DayGrid = () => {
   const [reservations, setReservations] = useState([]);
   const [possibleReservations, setPossibleReservations] = useState([]);
   const [indexSpan, setIndexSpan] = useState(1);
+  const [currentTimeSlotIndex, setCurrentTimeSlotIndex] = useState(0);
   const scrollRef = useRef(null);
   const helperRectangleRef = useRef(null);
 
@@ -122,6 +123,10 @@ const DayGrid = () => {
     setIndexSpan(newIndexSpan);
   };
 
+  const fSetCurrentTimeSlotIndex = (newTimeSlotIndex) => {
+    setCurrentTimeSlotIndex(newTimeSlotIndex);
+  };
+
   const handleReservationSlotClick = (reservation) => {
     const timeSlots = getTimeSlots();
     const startTime = timeSlots[reservation.startSlot];
@@ -145,10 +150,13 @@ const DayGrid = () => {
     helperRectangleRef,
     getTimeSlots,
     getReservationSlots,
+    possibleReservations,
     fSetPossibleReservations,
     getTableSlots,
     indexSpan,
     fSetIndexSpan,
+    currentTimeSlotIndex,
+    fSetCurrentTimeSlotIndex,
   };
 
   return (

@@ -313,7 +313,9 @@ const ReservationCard = ({ reservation }) => {
 
   return (
     <ReservationContext.Provider value={reservationValue}>
-      <div className={`border overflow-hidden h-full ${border} rounded-lg`}>
+      <div
+        className={`border overflow-hidden min-w-[90px] h-full ${border} rounded-lg`}
+      >
         {getCard()}
       </div>
     </ReservationContext.Provider>
