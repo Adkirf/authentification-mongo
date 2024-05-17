@@ -13,6 +13,7 @@ const SideBar = () => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
+      console.log("tot");
       if (
         sideBarRef.current &&
         !sideBarRef.current.contains(event.target) &&

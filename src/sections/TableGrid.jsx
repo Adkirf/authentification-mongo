@@ -25,6 +25,7 @@ const TableGrid = () => {
     currentReservation,
     fSetCurrentReservation,
     currentReservations,
+    toggleReservationCard,
     fSetDateLevel,
     indexSpan,
     currentTimeSlotIndex,
@@ -34,6 +35,7 @@ const TableGrid = () => {
   } = useContext(DashboardContext);
 
   const [tableSeats, setTableSeats] = useState([]);
+  const [tableSlots, setTableSlots] = useState([]);
   const [possibleTables, setPossibleTables] = useState([]);
 
   const scrollRef = useRef(null);
@@ -49,8 +51,24 @@ const TableGrid = () => {
       }
       initTableSeats.push(table.seats);
     });
+
+    const rowHelper = [];
+
+    const initTableSlots = tables.map((table) => {
+      rowHelper.push(table);
+      const rowIndex = rowHelper.filter(
+        (tableHelper) => tableHelper.seats == table.seats
+      ).length;
+      return {
+        ...table,
+        col: initTableSeats.indexOf(table.seats) + 1,
+        row: rowIndex + 1,
+      };
+    });
+
     setTableSeats(initTableSeats);
-    fSetPossibleTables();
+    setTableSlots(initTableSlots);
+    fSetPossibleTables(initTableSlots);
   }, [currentDate, currentReservations]);
 
   useEffect(() => {
@@ -63,71 +81,24 @@ const TableGrid = () => {
   }, [scrollRef, helperRectangleRef]);
 
   const getTableSlots = () => {
-    return tables.map((table, index) => (
+    return tableSlots.map((table, index) => (
       <div
         onClick={() => {
-          fSetDateLevel("day");
+          handleTableSlotClick(table);
         }}
         key={index}
+        style={{ gridColumnStart: table.col, gridRowStart: table.row }}
         className={`p-4  bg-${
           possibleTables.includes(table) ? "blue-300" : "gray-100"
-        } col-start-${tableSeats.indexOf(table.seats) + 1}
-         text-center border rounded shadow md:hover:bg-blue-100`}
+        } 
+        col-span-1 text-center border rounded shadow md:hover:bg-blue-100`}
       >
         {table.tableNumber}
       </div>
     ));
   };
 
-  //getTableSlots
-  const getReservationSlots = () => {
-    const today = currentDate.toISOString().slice(0, 10); // Ensure currentDate is treated as UTC
-
-    const reservationSlots = [];
-
-    currentReservations.forEach((reservation) => {
-      const reservationDate = reservation.start.toISOString().split("T")[0];
-
-      if (reservationDate !== today) {
-        return;
-      }
-
-      const openTime = new Date(`${today}T${openingHours.open}`);
-      const startTime = reservation.start;
-      const endTime = reservation.end;
-
-      const startDiff = (startTime - openTime) / (1000 * 60);
-      const endDiff = (endTime - openTime) / (1000 * 60);
-
-      const startSlot = Math.round(startDiff / 30);
-      const endSlot = Math.round(endDiff / 30);
-
-      let overlapCount = 0;
-      reservationSlots.forEach((existingSlot) => {
-        const overlap = !(
-          endSlot < existingSlot.start || startSlot > existingSlot.end
-        );
-        if (overlap) {
-          overlapCount += 1;
-        }
-      });
-
-      reservationSlots.push({
-        ...reservation,
-        startSlot: startSlot,
-        endSlot: endSlot,
-      });
-    });
-
-    return reservationSlots;
-  };
-
-  const fSetPossibleTables = () => {
-    if (currentReservations.length === 0) {
-      setPossibleTables(tables);
-      return;
-    }
-
+  const getIndexToTime = () => {
     const openHour = parseInt(openingHours.open.split(":")[0], 10);
 
     const totalMinutes = currentTimeSlotIndex * 30;
@@ -146,21 +117,35 @@ const TableGrid = () => {
     currentEndDate.setHours(durationInHours);
     currentEndDate.setMinutes(durationInMinutes);
 
+    return { start: currentStartDate, end: currentEndDate };
+  };
+
+  const fSetPossibleTables = (newTableSlots) => {
+    if (!newTableSlots) {
+      newTableSlots = tableSlots;
+    }
+    if (currentReservations.length === 0) {
+      setPossibleTables(newTableSlots);
+      return;
+    }
+
+    const date = getIndexToTime();
+
     let availableTables = [];
 
-    tables.forEach((table) => {
+    newTableSlots.forEach((table) => {
       const isIntersecting = table.reservations.some((tableReservation) => {
         if (
-          tableReservation.start.getMonth() !== currentStartDate.getMonth() ||
-          tableReservation.start.getDate() !== currentStartDate.getDate()
+          tableReservation.start.getMonth() !== date.start.getMonth() ||
+          tableReservation.start.getDate() !== date.start.getDate()
         ) {
           return false;
         }
 
         const tableReservationStart = tableReservation.start.getTime();
         const tableReservationEnd = tableReservation.end.getTime();
-        const currentStart = currentStartDate.getTime();
-        const currentEnd = currentEndDate.getTime();
+        const currentStart = date.start.getTime();
+        const currentEnd = date.end.getTime();
 
         return (
           currentStart < tableReservationEnd &&
@@ -176,22 +161,21 @@ const TableGrid = () => {
   };
 
   //handleTableSlotClick
-  const handleReservationSlotClick = (reservation) => {
-    const timeSlots = getTimeSlots();
-    const startTime = timeSlots[reservation.startSlot];
-    const endTime = timeSlots[reservation.endSlot];
-
-    const today = currentDate.toISOString().slice(0, 10);
-
-    const start = new Date(`${today}T${startTime}`);
-    const end = new Date(`${today}T${endTime}`);
-    reservation = {
-      ...reservation,
-      start: start,
-      end: end,
-    };
-
-    fSetCurrentReservation(reservation);
+  const handleTableSlotClick = (table) => {
+    const date = getIndexToTime();
+    if (possibleTables.includes(table)) {
+      const reservation = {
+        tableNumber: table.tableNumber,
+        peopleCount: table.seats,
+        start: date.start,
+        end: date.end,
+        status: "unchecked",
+      };
+      fSetCurrentReservation(reservation);
+      toggleReservationCard();
+      return;
+    }
+    fSetDateLevel("day");
   };
 
   return (
@@ -228,7 +212,7 @@ const TableGrid = () => {
             tableSeats.map((seatsNumber, index) => (
               <div
                 key={seatsNumber}
-                className={` row-start-1 p-2 text-center border-b-2`}
+                className={` row-start-1  p-2 text-center border-b-2`}
               >
                 Seats <br />
                 {seatsNumber}

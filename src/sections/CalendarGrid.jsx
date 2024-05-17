@@ -25,7 +25,7 @@ const CalendarGrid = () => {
   const monthDays = Array.from({ length: daysInMonth }).map((_, i) => (
     <div
       onClick={() => {
-        fSetDateLevel("day");
+        fSetDateLevel("tables");
         fSetCurrentDate(
           new Date(currentDate.getFullYear(), currentDate.getMonth(), i + 1)
         );

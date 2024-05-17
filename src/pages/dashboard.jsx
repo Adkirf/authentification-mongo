@@ -51,12 +51,12 @@ const App = () => {
 
   const [currentReservation, setCurrentReservation] = useState(null);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [dateLevel, setDateLevel] = useState("month"); // month, day, time
+  const [dateLevel, setDateLevel] = useState("month"); // month, tables day, time
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMakeReservationOpen, setIsMakeReservationOpen] = useState(null);
   const [alerts, setAlerts] = useState([]);
 
-  const [indexSpan, setIndexSpan] = useState(1);
+  const [indexSpan, setIndexSpan] = useState(2);
   const [currentTimeSlotIndex, setCurrentTimeSlotIndex] = useState(0);
 
   const getCurrentComponent = () => {
@@ -77,6 +77,11 @@ const App = () => {
     fSetTables(session.data.tables);
     fSetCurrentDate(new Date());
   }, [session]);
+
+  useEffect(() => {
+    console.log("current date changed");
+    console.log(currentDate);
+  }, [currentDate]);
 
   //Former Day context
 
@@ -252,7 +257,7 @@ const App = () => {
           sleep(3000),
         ]);
         await fSetCurrentDate(new Date(reservation.start));
-        setCurrentReservations((currentReservations) =>
+        await setCurrentReservations((currentReservations) =>
           currentReservations.filter(
             (currentReservation) => currentReservation._id != response.data._id
           )
@@ -287,8 +292,8 @@ const App = () => {
         if (isMakeReservationOpen) {
           toggleReservationCard();
         }
+        await fSetCurrentReservations([...currentReservations, resReservation]);
         fSetCurrentReservation(resReservation);
-        fSetCurrentReservations([...currentReservations, resReservation]);
 
         addAlert(response.severity, response.message, {
           _id: 1,
@@ -355,8 +360,8 @@ const App = () => {
         resReservation.start = new Date(resReservation.start);
         resReservation.end = new Date(resReservation.end);
         await sleep(3000);
+        await fSetCurrentReservations([...updatedReservations]);
         await fSetCurrentReservation(resReservation);
-        fSetCurrentReservations([...updatedReservations]);
         addAlert(response.severity, response.message, newReservation);
         return;
       }

@@ -26,7 +26,7 @@ const MenuBar = () => {
     if (dateLevel === "month") {
       newDate.setMonth(currentDate.getMonth() - 1);
     }
-    if (dateLevel === "day" || dateLevel === "table") {
+    if (dateLevel === "day" || dateLevel === "tables") {
       newDate.setDate(currentDate.getDate() - 1);
     }
     if (dateLevel === "time") {
@@ -56,7 +56,7 @@ const MenuBar = () => {
     if (dateLevel === "month") {
       newDate.setMonth(currentDate.getMonth() + 1);
     }
-    if (dateLevel === "day" || dateLevel === "table") {
+    if (dateLevel === "day" || dateLevel === "tables") {
       newDate.setDate(currentDate.getDate() + 1);
     }
     if (dateLevel === "time") {

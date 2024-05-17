@@ -143,7 +143,7 @@ export const MonthPicker = ({}) => {
         return `${month} ${year}`;
       case "day":
         return `${day} ${month}`;
-      case "table":
+      case "tables":
         return `${day} ${month}`;
       case "time":
         return `${day} ${month}`;

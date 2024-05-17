@@ -68,7 +68,9 @@ const DayGrid = () => {
   };
 
   const getReservationSlots = () => {
-    const today = currentDate.toISOString().slice(0, 10); // Ensure currentDate is treated as UTC
+    const openHour = parseInt(openingHours.open.split(":")[0], 10);
+    const todayDate = new Date(currentDate.setHours(openHour));
+    const today = todayDate.toISOString().slice(0, 10); // Ensure currentDate is treated as UTC
 
     const reservationSlots = [];
 
