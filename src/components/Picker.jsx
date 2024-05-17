@@ -83,7 +83,7 @@ export const DurationPicker = ({ indexSpan, onSelect, isDropDown }) => {
 };
 
 export const MonthPicker = ({}) => {
-  const { currentDate, fSetNextOrPrevDate, dateLevel } =
+  const { currentDate, fSetCurrentDate, fSetNextOrPrevDate, dateLevel } =
     useContext(DashboardContext);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -123,7 +123,7 @@ export const MonthPicker = ({}) => {
 
   const selectMonth = async (monthIndex) => {
     if (monthIndex === -1) {
-      fSetNextOrPrevDate(true, new Date());
+      fSetCurrentDate(new Date());
     } else {
       const newMonth = new Date(currentDate.getFullYear(), monthIndex);
       fSetNextOrPrevDate(true, newMonth);
@@ -142,6 +142,8 @@ export const MonthPicker = ({}) => {
       case "month":
         return `${month} ${year}`;
       case "day":
+        return `${day} ${month}`;
+      case "table":
         return `${day} ${month}`;
       case "time":
         return `${day} ${month}`;

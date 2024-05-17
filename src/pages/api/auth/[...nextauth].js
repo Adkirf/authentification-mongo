@@ -83,7 +83,6 @@ const authOptions = {
         tutorials: tutorials,
       };
 
-      console.log(session);
       return session;
     },
   },

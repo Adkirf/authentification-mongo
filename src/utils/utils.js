@@ -423,11 +423,10 @@ export async function deleteReservation(reservation) {
 
     if (!response.ok) {
       const data = await response.json();
-      console.log(data);
+      console.log("error in delete response");
       throw data;
     }
     const res = await response.json();
-    console.log(res);
     return await res;
   } catch (e) {
     console.log(e);
@@ -438,7 +437,6 @@ export async function deleteReservation(reservation) {
 // TABLES
 export async function getTables() {
   try {
-    console.log(`${getBaseUrl()}api/tables`);
     const response = await fetch(`${getBaseUrl()}api/tables`, {
       method: "GET",
       headers: {
@@ -451,7 +449,6 @@ export async function getTables() {
       console.log("response not ok at get all tables");
       throw data;
     }
-    console.log(response);
     return await response.json();
   } catch (e) {
     console.log("error in get tables function");

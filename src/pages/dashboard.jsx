@@ -8,6 +8,7 @@ import DayGrid from "@/sections/DayGrid";
 import ReservationGrid from "@/sections/ReservationGrid";
 import AlertList from "@/sections/AlertList";
 import ReservationCard from "../components/ReservationCard";
+import TableGrid from "@/sections/TableGrid";
 
 import {
   getReservations,
@@ -35,6 +36,11 @@ const months = [
   "December",
 ];
 
+const openingHours = {
+  open: "08:00",
+  close: "23:00",
+};
+
 const App = () => {
   const { data: session } = useSession();
 
@@ -50,24 +56,55 @@ const App = () => {
   const [isMakeReservationOpen, setIsMakeReservationOpen] = useState(null);
   const [alerts, setAlerts] = useState([]);
 
+  const [indexSpan, setIndexSpan] = useState(1);
+  const [currentTimeSlotIndex, setCurrentTimeSlotIndex] = useState(0);
+
   const getCurrentComponent = () => {
     switch (dateLevel) {
       case "month":
         return <CalendarGrid />;
-
       case "day":
         return <DayGrid />;
-
       case "time":
         return <ReservationGrid />;
+      case "tables":
+        return <TableGrid />;
     }
   };
 
   useEffect(() => {
     fSetCurrentReservations(session.data.reservations);
     fSetTables(session.data.tables);
-    fSetCurrentDate();
+    fSetCurrentDate(new Date());
   }, [session]);
+
+  //Former Day context
+
+  const getTimeSlots = () => {
+    const slots = [];
+    const openHour = parseInt(openingHours.open.split(":")[0], 10);
+    const closeHour = parseInt(openingHours.close.split(":")[0], 10);
+
+    for (let hour = openHour; hour <= closeHour; hour++) {
+      slots.push(`${hour % 24 < 10 ? "0" : ""}${hour % 24}:00`);
+      if (hour !== 23) {
+        slots.push(`${hour % 24 < 10 ? "0" : ""}${hour % 24}:30`);
+      }
+    }
+    return slots;
+  };
+  const fSetIndexSpan = (duration) => {
+    let newIndexSpan = 0;
+    for (let i = 0; i < duration; i += 0.5) {
+      newIndexSpan++;
+    }
+    setIndexSpan(newIndexSpan);
+  };
+  const fSetCurrentTimeSlotIndex = (newTimeSlotIndex) => {
+    setCurrentTimeSlotIndex(newTimeSlotIndex);
+  };
+
+  //Former Dashbaord context
 
   const fSetTables = async (newTables) => {
     //When Fetching Data convert date objects
@@ -78,8 +115,10 @@ const App = () => {
       addAlert("error", "null tables loaded");
     }
     newTables.forEach((table) => {
-      table.reservations.start = new Date(table.reservations.start);
-      table.reservations.end = new Date(table.reservations.end);
+      table.reservations.forEach((reservation) => {
+        reservation.start = new Date(reservation.start);
+        reservation.end = new Date(reservation.end);
+      });
     });
 
     const ordered = newTables.sort((a, b) => {
@@ -117,7 +156,7 @@ const App = () => {
         return 0;
       }
     });
-
+    fSetCurrentReservation(ordered[0]);
     setCurrentReservations(ordered);
   };
 
@@ -161,7 +200,6 @@ const App = () => {
   };
 
   const fSetNextOrPrevDate = async (isNext, newDate) => {
-    fSetCurrentReservation();
     try {
       if (newDate.getMonth() !== currentDate.getMonth()) {
         let tempReservations = (await getReservations(newDate.getMonth())).data;
@@ -175,14 +213,19 @@ const App = () => {
           );
           return;
         }
+        setCurrentDate(newDate);
+      }
+      if (newDate.getMonth() === currentDate.getMonth()) {
+        fSetCurrentReservation(currentReservations[0]);
+        if (!currentReservations[0].length) {
+          setCurrentDate(newDate);
+        }
+        return;
       }
     } catch (e) {
       addAlert("warning", "no reservations this month");
       console.log(e);
     }
-
-    setCurrentDate(newDate);
-    return;
   };
 
   const fSetDateLevel = (dateLevel) => {
@@ -396,6 +439,11 @@ const App = () => {
     alerts,
     addAlert,
     removeAlert,
+    indexSpan,
+    currentTimeSlotIndex,
+    getTimeSlots,
+    fSetIndexSpan,
+    fSetCurrentTimeSlotIndex,
   };
 
   return (
@@ -408,7 +456,7 @@ const App = () => {
         >
           <SideBar />
         </div>
-        <div className="flex flex-col justify-start md:justify-end overflow-y-clip w-full">
+        <div className="flex flex-col justify-start md:justify-end overflow-clip w-full">
           <div className="flex flex-col h-[90vh] py-8 px-2 justify-center">
             {getCurrentComponent()}
           </div>

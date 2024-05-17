@@ -1,15 +1,37 @@
 import MakeButton from "@/components/MakeButton";
 import { DashboardContext } from "@/pages/dashboard";
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 
 import QuizIcon from "@mui/icons-material/Quiz";
 const SideBar = () => {
-  const { dateLevel, fSetDateLevel } = useContext(DashboardContext);
+  const { dateLevel, fSetDateLevel, toggleSidebar, isSidebarOpen } =
+    useContext(DashboardContext);
+
+  const sideBarRef = useRef(null);
   const router = useRouter();
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        sideBarRef.current &&
+        !sideBarRef.current.contains(event.target) &&
+        isSidebarOpen
+      ) {
+        toggleSidebar();
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div className="h-full pl-4 pb-[12vh] justify-end border-r flex flex-col lg:flex-col-reverse gap-4 overflow-hidden">
+    <div
+      ref={sideBarRef}
+      className="h-full pl-4 pb-[12vh] justify-end border-r flex flex-col lg:flex-col-reverse gap-4 overflow-hidden"
+    >
       <div className="flex justify-start py-16">
         <button
           onClick={() => router.push("/")}
@@ -44,6 +66,16 @@ const SideBar = () => {
         } rounded`}
       >
         Day
+      </button>
+      <button
+        onClick={() => fSetDateLevel("tables")}
+        className={`px-4 py-2 w-full rounded-lg transition-all duration-300 ease-in-out ${
+          dateLevel === "tables"
+            ? "bg-blue-500 text-white text-left"
+            : "text-center text-black border-y-2 border-l-2 translate-x-10"
+        } rounded`}
+      >
+        Tables
       </button>
       <button
         onClick={() => {

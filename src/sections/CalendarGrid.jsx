@@ -13,10 +13,6 @@ const CalendarGrid = () => {
   useEffect(() => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
-    console.log(currentDate.getFullYear());
-    console.log(currentDate.getMonth());
-    console.log(currentDate.getDay());
-    console.log(currentDate);
 
     setDaysInMonth(new Date(year, month + 1, 0).getDate());
     setStartDayOfWeek(new Date(year, month, 1).getDay());
