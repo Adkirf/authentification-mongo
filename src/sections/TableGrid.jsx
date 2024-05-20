@@ -32,6 +32,7 @@ const TableGrid = () => {
     getTimeSlots,
     fSetIndexSpan,
     fSetCurrentTimeSlotIndex,
+    getIndexToTime,
   } = useContext(DashboardContext);
 
   const [tableSeats, setTableSeats] = useState([]);
@@ -91,33 +92,11 @@ const TableGrid = () => {
         className={`p-4  bg-${
           possibleTables.includes(table) ? "blue-300" : "gray-100"
         } 
-        col-span-1 text-center border rounded shadow md:hover:bg-blue-100`}
+        col-span-1 text-center md:text-xl border rounded shadow md:hover:bg-blue-100`}
       >
         {table.tableNumber}
       </div>
     ));
-  };
-
-  const getIndexToTime = () => {
-    const openHour = parseInt(openingHours.open.split(":")[0], 10);
-
-    const totalMinutes = currentTimeSlotIndex * 30;
-    const hours = Math.floor(totalMinutes / 60) + openHour;
-    const minutes = totalMinutes % 60;
-
-    const durationInTotalMinutes = indexSpan * 30;
-    const durationInHours = Math.floor(durationInTotalMinutes / 60) + hours;
-    const durationInMinutes = (durationInTotalMinutes % 60) + minutes;
-
-    const currentStartDate = new Date(currentDate);
-    currentStartDate.setHours(hours);
-    currentStartDate.setMinutes(minutes);
-
-    const currentEndDate = new Date(currentStartDate);
-    currentEndDate.setHours(durationInHours);
-    currentEndDate.setMinutes(durationInMinutes);
-
-    return { start: currentStartDate, end: currentEndDate };
   };
 
   const fSetPossibleTables = (newTableSlots) => {
@@ -175,57 +154,92 @@ const TableGrid = () => {
       toggleReservationCard();
       return;
     }
+    const intersectingSubReservation = table.reservations.find(
+      (reservation) => {
+        const tableReservationStart = reservation.start.getTime();
+        const tableReservationEnd = reservation.end.getTime();
+        const currentStart = date.start.getTime();
+        const currentEnd = date.end.getTime();
+
+        return (
+          currentStart < tableReservationEnd &&
+          currentEnd > tableReservationStart
+        );
+      }
+    );
+    const intersectingReservation = currentReservations.find(
+      (reservation) => reservation._id == intersectingSubReservation._id
+    );
+
+    fSetCurrentReservation(intersectingReservation);
     fSetDateLevel("day");
   };
 
   return (
-    <div className="flex flex-row w-full">
-      <div className="flex flex-col w-[80px]">
-        <div className="z-10 w-full">
-          <DurationPicker
-            indexSpan={indexSpan}
-            onSelect={fSetIndexSpan}
-            isDropDown={true}
-          />
+    <div className="flex flex-col w-full">
+      <div className="flex flex-shrink justify-center h-[15vh]">
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-shrink gap-2">
+            <div
+              className={`p-4 text-center md:text-xl border rounded shadow bg-blue-300`}
+            ></div>
+            <div className="flex items-center">Available Table</div>
+          </div>
+          <div className="flex flex-shrink gap-2">
+            <div
+              className={`p-4 text-center md:text-xl border rounded shadow bg-gray-100`}
+            ></div>
+            <div className="flex items-center">Not Available</div>
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-row w-full">
+        <div className="flex flex-col w-[80px]">
+          <div className="z-[21] w-full">
+            <DurationPicker
+              indexSpan={indexSpan}
+              onSelect={fSetIndexSpan}
+              isDropDown={true}
+            />
+          </div>
+          <div
+            ref={scrollRef}
+            className="h-[400px] flex items-center flex-col flex-shrink hide-scrollbar overflow-y-scroll"
+          >
+            <span className="block min-h-[200px]" />
+            <TimeSlots
+              mainSlots={possibleTables}
+              setMainSlots={fSetPossibleTables}
+              scrollRef={scrollRefState ? scrollRefState.current : null}
+              helperRectangleRef={
+                helperRectangleRefState
+                  ? helperRectangleRefState.current.getBoundingClientRect().top
+                  : null
+              }
+            />
+            <span className="block min-h-[200px]" />
+          </div>
+        </div>
+        <div className="flex flex-grow overflow-x-scroll">
+          <div className="grid auto-rows-min md:auto-rows-max md:w-full gap-1">
+            {tableSeats &&
+              tableSeats.map((seatsNumber, index) => (
+                <div
+                  key={seatsNumber}
+                  className={` row-start-1  p-2 text-center border-b-2`}
+                >
+                  Seats <br />
+                  {seatsNumber}
+                </div>
+              ))}
+            {getTableSlots()}
+          </div>
         </div>
         <div
-          ref={scrollRef}
-          className="h-[400px] flex items-center flex-col flex-shrink hide-scrollbar overflow-y-scroll"
-        >
-          <span className="block min-h-[200px]" />
-          <TimeSlots
-            mainSlots={possibleTables}
-            setMainSlots={fSetPossibleTables}
-            scrollRef={scrollRefState ? scrollRefState.current : null}
-            helperRectangleRef={
-              helperRectangleRefState
-                ? helperRectangleRefState.current.getBoundingClientRect().top
-                : null
-            }
-          />
-          <span className="block min-h-[200px]" />
-        </div>
+          ref={helperRectangleRef}
+          className="h-[80px] fixed bottom-1/2 z-50 translate-y-1/2"
+        />
       </div>
-      <div className="flex flex-grow overflow-x-scroll">
-        <div className="grid auto-rows-min gap-1">
-          {tableSeats &&
-            tableSeats.map((seatsNumber, index) => (
-              <div
-                key={seatsNumber}
-                className={` row-start-1  p-2 text-center border-b-2`}
-              >
-                Seats <br />
-                {seatsNumber}
-              </div>
-            ))}
-          {getTableSlots()}
-        </div>
-      </div>
-
-      <div
-        ref={helperRectangleRef}
-        className="h-[80px] fixed bottom-1/2 z-50 translate-y-1/2"
-      />
     </div>
   );
 };

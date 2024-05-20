@@ -78,11 +78,6 @@ const App = () => {
     fSetCurrentDate(new Date());
   }, [session]);
 
-  useEffect(() => {
-    console.log("current date changed");
-    console.log(currentDate);
-  }, [currentDate]);
-
   //Former Day context
 
   const getTimeSlots = () => {
@@ -98,15 +93,75 @@ const App = () => {
     }
     return slots;
   };
-  const fSetIndexSpan = (duration) => {
+  const fSetIndexSpan = (duration, index) => {
     let newIndexSpan = 0;
-    for (let i = 0; i < duration; i += 0.5) {
-      newIndexSpan++;
+    if (duration && !index) {
+      for (let i = 0; i < duration; i += 0.5) {
+        newIndexSpan++;
+      }
+    }
+    if (!duration && index) {
+      newIndexSpan = index;
     }
     setIndexSpan(newIndexSpan);
   };
-  const fSetCurrentTimeSlotIndex = (newTimeSlotIndex) => {
+
+  const fSetCurrentTimeSlotIndex = (newTimeSlotIndex, increase, decrease) => {
+    if (increase) {
+      setCurrentTimeSlotIndex((prevIndex) => {
+        const newIndex = Math.min(prevIndex + 1, getTimeSlots().length - 1);
+
+        return newIndex;
+      });
+      return;
+    }
+
+    if (decrease) {
+      setCurrentTimeSlotIndex((prevIndex) => {
+        const newIndex = Math.max(prevIndex - 1, 0);
+        return newIndex;
+      });
+      return;
+    }
     setCurrentTimeSlotIndex(newTimeSlotIndex);
+  };
+
+  const getIndexToTime = () => {
+    const openHour = parseInt(openingHours.open.split(":")[0], 10);
+
+    const totalMinutes = currentTimeSlotIndex * 30;
+    const hours = Math.floor(totalMinutes / 60) + openHour;
+    const minutes = totalMinutes % 60;
+
+    const durationInTotalMinutes = indexSpan * 30;
+    const durationInHours = Math.floor(durationInTotalMinutes / 60) + hours;
+    const durationInMinutes = (durationInTotalMinutes % 60) + minutes;
+
+    const currentStartDate = new Date(currentDate);
+    currentStartDate.setHours(hours);
+    currentStartDate.setMinutes(minutes);
+
+    const currentEndDate = new Date(currentStartDate);
+    currentEndDate.setHours(durationInHours);
+    currentEndDate.setMinutes(durationInMinutes);
+
+    return { start: currentStartDate, end: currentEndDate };
+  };
+
+  const setTimeToIndex = (start) => {
+    if (currentReservation) {
+      start = currentReservation.start;
+    }
+    const openHour = parseInt(openingHours.open.split(":")[0], 10);
+    const openMinute = parseInt(openingHours.open.split(":")[1], 10);
+
+    const openTimeInMinutes = openHour * 60 + openMinute;
+    const currentTimeInMinutes = start.getHours() * 60 + start.getMinutes();
+
+    const totalMinutesElapsed = currentTimeInMinutes - openTimeInMinutes;
+    const index = Math.floor(totalMinutesElapsed / 30);
+    console.log(index);
+    setCurrentTimeSlotIndex(index ? index : 0);
   };
 
   //Former Dashbaord context
@@ -238,7 +293,7 @@ const App = () => {
   };
 
   const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
+    setIsSidebarOpen((prev) => !prev);
   };
 
   const toggleReservationCard = () => {
@@ -449,6 +504,8 @@ const App = () => {
     getTimeSlots,
     fSetIndexSpan,
     fSetCurrentTimeSlotIndex,
+    getIndexToTime,
+    setTimeToIndex,
   };
 
   return (

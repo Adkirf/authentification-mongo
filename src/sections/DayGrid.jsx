@@ -38,6 +38,7 @@ const DayGrid = () => {
 
   const scrollRef = useRef(null);
   const helperRectangleRef = useRef(null);
+  const tableScrollRef = useRef(null);
   const [scrollRefState, setScrollRefState] = useState(null);
   const [helperRectangleRefState, setHelperRectangleRefState] = useState(null);
 
@@ -48,40 +49,56 @@ const DayGrid = () => {
     if (helperRectangleRef) {
       setHelperRectangleRefState(helperRectangleRef);
     }
-  }, [scrollRef, helperRectangleRef]);
+
+    let timeoutId;
+
+    if (
+      scrollRef &&
+      helperRectangleRef &&
+      currentReservation &&
+      tableScrollRef.current
+    ) {
+      scrollRef.current.style.scrollBehavior = "smooth";
+      /* timeoutId = setTimeout(() => {
+        const scrollTarget =
+          tableScrollRef.current.getBoundingClientRect().left -
+          tableScrollRef.current.getBoundingClientRect().width;
+
+        scrollRef.current.scrollLeft = scrollTarget;
+      }, 1500); */
+    }
+
+    // Cleanup function to clear the timeout
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [scrollRef, helperRectangleRef, tableScrollRef]);
 
   useEffect(() => {
     setReservations(getReservationSlots());
   }, [currentDate, currentReservations, currentReservation]);
 
-  const getTableSlots = () => {
-    let slots = [];
-
-    for (let index = 0; index < tables.length; index++) {
-      let table = tables[index];
-      slots.push({
-        ...table,
-      });
-    }
-
-    return slots;
-  };
-
   const getReservationSlots = () => {
     const openHour = parseInt(openingHours.open.split(":")[0], 10);
-    const todayDate = new Date(currentDate.setHours(openHour));
-    const today = todayDate.toISOString().slice(0, 10); // Ensure currentDate is treated as UTC
+
+    const today = new Date(currentDate);
+    today.setHours(0, 0, 0, 0);
 
     const reservationSlots = [];
-
     currentReservations.forEach((reservation) => {
-      const reservationDate = reservation.start.toISOString().split("T")[0];
+      const reservationDay = new Date(reservation.start);
+      reservationDay.setHours(0, 0, 0, 0);
 
-      if (reservationDate !== today) {
+      // If the reservation is not for today, skip it
+      if (reservationDay.getTime() !== today.getTime()) {
         return;
       }
 
-      const openTime = new Date(`${today}T${openingHours.open}`);
+      const openTime = new Date(today);
+      openTime.setHours(openHour, 0, 0, 0);
+
       const startTime = reservation.start;
       const endTime = reservation.end;
 
@@ -94,7 +111,7 @@ const DayGrid = () => {
       let overlapCount = 0;
       reservationSlots.forEach((existingSlot) => {
         const overlap = !(
-          endSlot < existingSlot.start || startSlot > existingSlot.end
+          endSlot < existingSlot.startSlot || startSlot > existingSlot.endSlot
         );
         if (overlap) {
           overlapCount += 1;
@@ -112,7 +129,6 @@ const DayGrid = () => {
   };
 
   const fSetPossibleReservations = () => {
-    const tables = getTableSlots();
     const reservations = getReservationSlots();
 
     if (reservations === 0) {
@@ -216,13 +232,15 @@ const DayGrid = () => {
       end: end,
     };
 
+    fSetCurrentTimeSlotIndex(reservation.startSlot);
+
     fSetCurrentReservation(reservation);
   };
 
   return (
     <div
       ref={scrollRef}
-      className={`grid grid-cols-[50px] md:grid-cols-[60px]  overflow-scroll relative top-0 z-10 pb-[50vh] `}
+      className={`grid grid-cols-[50px] md:grid-cols-[60px]  overflow-auto relative top-0 z-10 pb-[50vh] `}
       style={{ overflowAnchor: "none" }}
     >
       <div
@@ -236,37 +254,46 @@ const DayGrid = () => {
         />
       </div>
 
-      {getTableSlots().map((table, index) => (
-        <div
-          key={index}
-          style={{
-            gridColumn: `${table.tableNumber + 2}/${table.tableNumber + 3}`,
-          }}
-          className={`row-start-1  bg-white w-full md:w-[180px] py-2 px-2 sticky z-20 top-0 flex flex-col justify-center`}
-        >
-          <div className="flex justify-center">
-            {/* <span className="flex w-1/3" /> */}
-            <span className="flex w-1/3  font-base justify-center">
-              {" "}
-              Table{" "}
-            </span>
-            {/* <span className="flex w-1/3 text-sm font-thin"> /Seats</span> */}
-          </div>
-          <div className="flex justify-center">
-            {/* <span className="flex w-1/3" /> */}
-            <span className="flex w-1/3 text-2xl font-bold justify-center">
-              {" "}
-              {table.tableNumber}{" "}
-            </span>
-            {/*  <span className="flex w-1/3 text-sm font-thin">
+      {tables &&
+        tables.map((table, index) => (
+          <div
+            ref={
+              currentReservation
+                ? currentReservation.tableNumber == table.tableNumber
+                  ? tableScrollRef
+                  : null
+                : null
+            }
+            key={index}
+            style={{
+              gridColumn: `${table.tableNumber + 2}/${table.tableNumber + 3}`,
+            }}
+            className={`row-start-1  bg-white w-full md:w-[180px] py-2 px-2 sticky z-20 top-0 flex flex-col justify-center`}
+          >
+            <div className="flex justify-center">
+              {/* <span className="flex w-1/3" /> */}
+              <span className="flex w-1/3  font-base justify-center">
+                {" "}
+                Table{" "}
+              </span>
+              {/* <span className="flex w-1/3 text-sm font-thin"> /Seats</span> */}
+            </div>
+            <div className="flex justify-center">
+              {/* <span className="flex w-1/3" /> */}
+              <span className="flex w-1/3 text-2xl font-bold justify-center">
+                {" "}
+                {table.tableNumber}{" "}
+              </span>
+              {/*  <span className="flex w-1/3 text-sm font-thin">
                 {" "}
                 /{table.seats}
               </span> */}
-          </div>
+            </div>
 
-          <span className="absolute z-30 bottom-0 left-0 w-[1px] bg-gray-100 h-[25px] " />
-        </div>
-      ))}
+            <span className="absolute z-30 bottom-0 left-0 w-[1px] bg-gray-100 h-[25px] " />
+          </div>
+        ))}
+
       <TimeSlots
         isBackground={false}
         mainSlots={possibleReservations}
@@ -302,17 +329,18 @@ const DayGrid = () => {
       <div className="grid absolute top-0  z-0 ">
         <span className="w-[50px] md:w-[60px] h-[80px] bg-white z-20 row-start-1 col-start-1 sticky left-0" />
 
-        {getTableSlots().map((table, index) => (
-          <div
-            key={index}
-            style={{
-              gridColumn: `${table.tableNumber + 2}/${table.tableNumber + 3}`,
-            }}
-            className={` row-start-1 col-span-1  bg-white w-full md:w-[180px]  sticky -left-60 z-10 top-0 flex justify-start`}
-          >
-            <span className="absolute h-[200vh] w-[1px] bg-gray-100" />
-          </div>
-        ))}
+        {tables &&
+          tables.map((table, index) => (
+            <div
+              key={index}
+              style={{
+                gridColumn: `${table.tableNumber + 2}/${table.tableNumber + 3}`,
+              }}
+              className={` row-start-1 col-span-1  bg-white w-full md:w-[180px]  sticky -left-60 z-10 top-0 flex justify-start`}
+            >
+              <span className="absolute h-[200vh] w-[1px] bg-gray-100" />
+            </div>
+          ))}
 
         <TimeSlots isBackground={true} />
         {[...reservations, ...possibleReservations].map(

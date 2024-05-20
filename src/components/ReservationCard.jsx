@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useContext, createContext } from "react";
+import React, {
+  useEffect,
+  useState,
+  useContext,
+  createContext,
+  useRef,
+} from "react";
 import { DashboardContext } from "@/pages/dashboard";
 import { DayContext } from "@/sections/DayGrid";
 
@@ -20,7 +26,7 @@ import MakeButton from "./MakeButton.jsx";
 
 export const ReservationContext = createContext();
 
-const ReservationCard = ({ reservation }) => {
+const ReservationCard = ({ reservation, setRef }) => {
   const {
     currentReservation,
     currentReservations,
@@ -44,6 +50,14 @@ const ReservationCard = ({ reservation }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [border, setBorder] = useState("border-gray-100");
   const [log, setLog] = useState("");
+
+  const reservationRef = useRef(null);
+
+  useEffect(() => {
+    if (reservationRef && setRef) {
+      setRef(reservationRef);
+    }
+  }, [reservationRef, currentReservation]);
 
   useEffect(() => {
     if (currentReservation && !currentReservation.name) {
@@ -314,6 +328,7 @@ const ReservationCard = ({ reservation }) => {
   return (
     <ReservationContext.Provider value={reservationValue}>
       <div
+        ref={setRef ? reservationRef : null}
         className={`border overflow-hidden min-w-[90px] h-full ${border} rounded-lg`}
       >
         {getCard()}
@@ -569,7 +584,6 @@ const DayCard = () => {
     <div
       onClick={() => {
         fSetDateLevel("time");
-        fSetCurrentReservation(reservation);
       }}
       className={`${
         log ? "border border-yellow-500" : ""
