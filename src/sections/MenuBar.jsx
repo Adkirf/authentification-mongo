@@ -19,6 +19,7 @@ const MenuBar = () => {
     fSetDateLevel,
     toggleSidebar,
     isSidebarOpen,
+    fSetCurrentTimeSlotIndex,
   } = useContext(DashboardContext);
 
   const handlePrevios = () => {
@@ -42,9 +43,7 @@ const MenuBar = () => {
         return;
       }
 
-      newDate = closestReservation
-        ? closestReservation.start
-        : new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+      newDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
       fSetNextOrPrevDate(false, newDate);
       return;
     }
@@ -71,9 +70,12 @@ const MenuBar = () => {
         fSetCurrentReservation(closestReservation);
         return;
       }
-      newDate = closestReservation
-        ? closestReservation.start
-        : new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+
+      newDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() + 1,
+        1
+      );
       fSetNextOrPrevDate(true, newDate);
       return;
     }

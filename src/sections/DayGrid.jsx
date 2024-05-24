@@ -77,8 +77,14 @@ const DayGrid = () => {
   }, [scrollRef, helperRectangleRef, tableScrollRef]);
 
   useEffect(() => {
-    setReservations(getReservationSlots());
-  }, [currentDate, currentReservations, currentReservation]);
+    fSetPossibleReservations();
+  }, [
+    currentTimeSlotIndex,
+    indexSpan,
+    currentDate,
+    currentReservations,
+    currentReservation,
+  ]);
 
   const getReservationSlots = () => {
     const openHour = parseInt(openingHours.open.split(":")[0], 10);
@@ -213,26 +219,37 @@ const DayGrid = () => {
     possibleReservations = possibleReservations.flat();
 
     const filtered = possibleReservations.filter((reservation) => reservation);
-
+    setReservations(reservations);
     setPossibleReservations(filtered);
   };
 
   const handleReservationSlotClick = (reservation) => {
     const timeSlots = getTimeSlots();
-    const startTime = timeSlots[reservation.startSlot];
-    const endTime = timeSlots[reservation.endSlot];
+    const [startHour, startMinute] = timeSlots[reservation.startSlot]
+      .split(":")
+      .map(Number);
+    const [endHour, endMinute] = timeSlots[reservation.endSlot]
+      .split(":")
+      .map(Number);
 
-    const today = currentDate.toISOString().slice(0, 10);
+    const today = new Date(currentDate);
+    today.setHours(0, 0, 0, 0);
 
-    const start = new Date(`${today}T${startTime}`);
-    const end = new Date(`${today}T${endTime}`);
+    const start = new Date(today);
+    start.setHours(startHour, startMinute, 0, 0);
+
+    const end = new Date(today);
+    end.setHours(endHour, endMinute, 0, 0);
+
     reservation = {
       ...reservation,
       start: start,
       end: end,
+      startSlot: null,
+      endSlot: null,
     };
 
-    fSetCurrentTimeSlotIndex(reservation.startSlot);
+    // fSetCurrentTimeSlotIndex(reservation.startSlot);
 
     fSetCurrentReservation(reservation);
   };
@@ -240,7 +257,7 @@ const DayGrid = () => {
   return (
     <div
       ref={scrollRef}
-      className={`grid grid-cols-[50px] md:grid-cols-[60px]  overflow-auto relative top-0 z-10 pb-[50vh] `}
+      className={`scroll-smooth grid grid-cols-[50px] md:grid-cols-[60px]  overflow-auto relative top-0 z-10 pb-[50vh] `}
       style={{ overflowAnchor: "none" }}
     >
       <div

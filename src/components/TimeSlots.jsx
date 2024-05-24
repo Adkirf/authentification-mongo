@@ -8,7 +8,6 @@ const TimeSlots = ({
   isBackground,
   isHorizontal,
   mainSlots,
-  setMainSlots,
   scrollRef,
   helperRectangleRef,
 }) => {
@@ -25,59 +24,82 @@ const TimeSlots = ({
     fSetCurrentTimeSlotIndex,
   } = useContext(DashboardContext);
 
+  let pauseScroll = false;
   useEffect(() => {
-    if (isBackground) {
-      return;
-    }
-    setMainSlots();
-  }, [
-    currentTimeSlotIndex,
-    indexSpan,
-    currentDate,
-    currentReservations,
-    currentReservation,
-  ]);
+    const handleScroll = () => {
+      if (pauseScroll) return;
+      if (timeSlotRef.current && helperRectangleRef && scrollRef) {
+        const timeSlotRect = timeSlotRef.current.getBoundingClientRect();
+        if (isHorizontal) {
+          if (
+            scrollRef.scrollLeft < timeSlotRect.width &&
+            !currentTimeSlotIndex
+          ) {
+            fSetCurrentTimeSlotIndex(0);
+          } else if (
+            timeSlotRect.left + 15 < helperRectangleRef &&
+            timeSlotRect.right + 15 < helperRectangleRef
+          ) {
+            fSetCurrentTimeSlotIndex(0, true, false);
+          } else if (
+            timeSlotRect.left > helperRectangleRef &&
+            timeSlotRect.right > helperRectangleRef
+          ) {
+            fSetCurrentTimeSlotIndex(0, false, true);
+          }
+          return;
+        }
 
-  const handleScroll = () => {
-    if (timeSlotRef.current && helperRectangleRef && scrollRef) {
-      const timeSlotRect = timeSlotRef.current.getBoundingClientRect();
-      if (isHorizontal) {
-        if (scrollRef.scrollLeft < timeSlotRect.width) {
+        if (
+          scrollRef.scrollTop < timeSlotRect.height &&
+          !currentTimeSlotIndex
+        ) {
           fSetCurrentTimeSlotIndex(0);
         } else if (
-          timeSlotRect.left + 15 < helperRectangleRef &&
-          timeSlotRect.right + 15 < helperRectangleRef
+          timeSlotRect.top < helperRectangleRef &&
+          timeSlotRect.bottom < helperRectangleRef
         ) {
           fSetCurrentTimeSlotIndex(0, true, false);
         } else if (
-          timeSlotRect.left > helperRectangleRef &&
-          timeSlotRect.right > helperRectangleRef
+          timeSlotRect.top > helperRectangleRef &&
+          timeSlotRect.bottom > helperRectangleRef
         ) {
           fSetCurrentTimeSlotIndex(0, false, true);
         }
-        return;
       }
+    };
 
-      if (scrollRef.scrollTop < timeSlotRect.height) {
-        fSetCurrentTimeSlotIndex(0);
-      } else if (
-        timeSlotRect.top < helperRectangleRef &&
-        timeSlotRect.bottom < helperRectangleRef
-      ) {
-        fSetCurrentTimeSlotIndex(0, true, false);
-      } else if (
-        timeSlotRect.top > helperRectangleRef &&
-        timeSlotRect.bottom > helperRectangleRef
-      ) {
-        fSetCurrentTimeSlotIndex(0, false, true);
+    const scrollToHelper = () => {
+      if (timeSlotRef.current && helperRectangleRef) {
+        pauseScroll = true;
+        if (isHorizontal) {
+          let scrollTarget =
+            timeSlotRef.current.getBoundingClientRect().left -
+            helperRectangleRef +
+            timeSlotRef.current.getBoundingClientRect().width;
+
+          scrollRef.scrollLeft += scrollTarget;
+        } else {
+          let scrollTarget =
+            timeSlotRef.current.getBoundingClientRect().top -
+            helperRectangleRef;
+
+          if (currentTimeSlotIndex === 0) {
+            scrollTarget = 0;
+          }
+
+          scrollRef.scrollTop = scrollTarget;
+        }
+
+        setTimeout(() => {
+          pauseScroll = false;
+        }, 1500);
       }
-    }
-  };
-  useEffect(() => {
-    console.log("new");
-    console.log(currentReservation);
-    if (!isBackground && scrollRef) {
-      handleScroll();
+    };
+
+    if (scrollRef && helperRectangleRef) {
+      scrollRef.removeEventListener("scroll", handleScroll);
+      scrollToHelper();
       scrollRef.addEventListener("scroll", handleScroll);
     }
 
@@ -86,46 +108,7 @@ const TimeSlots = ({
         scrollRef.removeEventListener("scroll", handleScroll);
       }
     };
-  }, [
-    currentReservation,
-    currentTimeSlotIndex,
-    indexSpan,
-    scrollRef,
-    helperRectangleRef,
-  ]);
-
-  const scrollToHelper = () => {
-    if (timeSlotRef.current && helperRectangleRef) {
-      scrollRef.style.scrollBehavior = "smooth";
-      scrollRef.removeEventListener("scroll", handleScroll);
-      if (isHorizontal) {
-        let scrollTarget =
-          timeSlotRef.current.getBoundingClientRect().left -
-          helperRectangleRef +
-          timeSlotRef.current.getBoundingClientRect().width;
-
-        scrollRef.scrollLeft += scrollTarget;
-      } else {
-        let scrollTarget =
-          timeSlotRef.current.getBoundingClientRect().top - helperRectangleRef;
-
-        if (currentTimeSlotIndex === 0) {
-          scrollTarget = 0;
-        }
-
-        scrollRef.scrollTop = scrollTarget;
-      }
-      setTimeout(() => {
-        scrollRef.addEventListener("scroll", handleScroll);
-      }, 1500);
-    }
-  };
-
-  useEffect(() => {
-    if (scrollRef && helperRectangleRef) {
-      scrollToHelper();
-    }
-  }, [scrollRef, helperRectangleRef]);
+  }, [currentReservation, scrollRef, helperRectangleRef]);
 
   return (
     <>

@@ -21,6 +21,7 @@ const ReservationGrid = () => {
     indexSpan,
     fSetIndexSpan,
     getIndexToTime,
+    getTimeToIndex,
   } = useContext(DashboardContext);
 
   const scrollRef = useRef(null);
@@ -33,16 +34,13 @@ const ReservationGrid = () => {
 
   const [intersectingReservations, setIntersectingReservations] = useState([]);
 
-  useEffect;
-
   useEffect(() => {
-    if (reservationRef && reservationRef.current && reservationsScrollRef) {
+    if (reservationRef?.current && reservationsScrollRef?.current) {
       reservationsScrollRef.current.style.scrollBehavior = "smooth";
+
       const scrollToCenter = () => {
-        const targetRect = reservationRef.current
-          ? reservationRef.current.getBoundingClientRect()
-          : null;
-        if (!targetRect) return;
+        // Always get the latest bounding rectangles
+        const targetRect = reservationRef.current.getBoundingClientRect();
         const containerRect =
           reservationsScrollRef.current.getBoundingClientRect();
 
@@ -64,7 +62,7 @@ const ReservationGrid = () => {
         cancelAnimationFrame(animationFrame);
       };
     }
-  }, [reservationRef, reservationsScrollRef]);
+  }, [reservationRef, reservationsScrollRef, intersectingReservations]);
 
   useEffect(() => {
     if (scrollRef) {
@@ -82,6 +80,10 @@ const ReservationGrid = () => {
       fSetIndexSpan(false, originalIndexSpan);
     };
   }, []);
+
+  useEffect(() => {
+    fSetIntersectingReservations();
+  }, [currentReservation, currentTimeSlotIndex, currentReservations]);
 
   const getInterSectingReservationSlots = () => {
     const result = [];
@@ -108,11 +110,10 @@ const ReservationGrid = () => {
           </div>
         </div>
       );
-      console.log(intersectingReservations);
       return (
         <div
           ref={reservationsScrollRef}
-          className="flex overflow-x-scroll overflow-y-clip w-full h-full p-[20px] hide-scrollbar"
+          className="flex overflow-x-scroll scroll-smooth overflow-y-clip w-full h-full p-[20px] hide-scrollbar"
         >
           <div className="flex flex-row gap-8 items-center">{result}</div>
         </div>
@@ -128,8 +129,8 @@ const ReservationGrid = () => {
     );
   };
 
-  const fSetIntersectingReservations = () => {
-    const date = currentReservation ? currentReservation : getIndexToTime();
+  const fSetIntersectingReservations = async () => {
+    const date = getIndexToTime();
 
     const intersectingReservations = currentReservations.filter(
       (reservation) =>
@@ -144,7 +145,7 @@ const ReservationGrid = () => {
     <div className="flex flex-col items-center h-full md:flex-col-reverse md:justify-end">
       {getInterSectingReservationSlots()}
       <div
-        className="flex flex-row gap-[15px] overflow-x-scroll overflow-y-hidden w-full hide-scrollbar "
+        className="scroll-smooth flex flex-row gap-[15px] overflow-x-scroll overflow-y-hidden w-full hide-scrollbar "
         ref={scrollRef}
       >
         <div
@@ -155,7 +156,6 @@ const ReservationGrid = () => {
         <TimeSlots
           isHorizontal={true}
           mainSlots={intersectingReservations}
-          setMainSlots={fSetIntersectingReservations}
           scrollRef={scrollRefState ? scrollRefState.current : null}
           helperRectangleRef={
             helperRectangleRefState
@@ -170,154 +170,3 @@ const ReservationGrid = () => {
 };
 
 export default ReservationGrid;
-
-const ReservationList = () => {
-  const { currentReservation, currentDate, currentReservations } =
-    useContext(DashboardContext);
-
-  const [reservations, setReservations] = useState([]);
-
-  useEffect(() => {
-    setReservations([]);
-    setReservations(findInterferingReservations());
-  }, [currentReservation, currentDate, currentReservations]);
-
-  const findInterferingReservations = () => {
-    let intersectingReservations = currentReservations.filter(
-      (reservation) =>
-        reservation.start.getTime() <= currentDate.getTime() &&
-        reservation.end.getTime() >= currentDate.getTime()
-    );
-
-    //Replace with scroll
-    if (currentReservation) {
-      intersectingReservations = intersectingReservations.filter(
-        (reservation) => reservation._id !== currentReservation._id
-      );
-      intersectingReservations.unshift(currentReservation);
-    }
-    return intersectingReservations;
-  };
-
-  if (reservations.length == 0) {
-    return (
-      <div className="h-full flex flex-col justify-center">
-        <div className="h-[50px] w-[150px]">
-          <MakeButton />
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex overflow-x-scroll overflow-y-clip w-full h-full p-[20px] hide-scrollbar">
-      <div className="flex flex-row gap-8 items-center">
-        {reservations.map((reservation, index) => (
-          <ReservationCard key={index} reservation={reservation} />
-        ))}
-      </div>
-    </div>
-  );
-};
-
-const HorizontalTimeSlots = () => {
-  const { currentDate, fSetCurrentDate, fSetCurrentReservation } =
-    useContext(DashboardContext);
-
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
-  const timeSlotsContainerRef = useRef(null);
-
-  useEffect(() => {
-    const newSelectedSlot = getTimeSlots().find((slot) => {
-      const [hours, minutes] = slot.split(":").map(Number);
-      const slotDate = new Date(currentDate);
-      slotDate.setHours(hours, minutes, 0, 0);
-
-      const currentDatePlus30Mins = new Date(
-        currentDate.getTime() + 30 * 60 * 1000
-      );
-
-      return slotDate >= currentDate && slotDate < currentDatePlus30Mins;
-    });
-
-    setSelectedTimeSlot(newSelectedSlot);
-  }, [currentDate]);
-
-  useEffect(() => {
-    if (selectedTimeSlot && timeSlotsContainerRef.current) {
-      const timeSlots = getTimeSlots();
-      const selectedSlotIndex = timeSlots.findIndex(
-        (slot) => slot === selectedTimeSlot
-      );
-
-      if (selectedSlotIndex >= 0) {
-        const slotWidth = 75;
-        const containerWidth = timeSlotsContainerRef.current.offsetWidth;
-
-        const newScrollPosition =
-          slotWidth * selectedSlotIndex - containerWidth / 2 + slotWidth / 2;
-
-        timeSlotsContainerRef.current.scrollLeft = newScrollPosition;
-      }
-    }
-  }, [selectedTimeSlot]);
-
-  const getTimeSlots = () => {
-    const slots = [];
-    const openHour = parseInt(openingHours.open.split(":")[0], 10);
-    const closeHour = parseInt(openingHours.close.split(":")[0], 10);
-
-    for (let hour = openHour; hour <= closeHour; hour++) {
-      slots.push(`${hour % 24 < 10 ? "0" : ""}${hour % 24}:00`);
-      if (hour !== 23) {
-        slots.push(`${hour % 24 < 10 ? "0" : ""}${hour % 24}:30`);
-      }
-    }
-    return slots;
-  };
-
-  const getTimeSlotStyle = (timeSlot) => {
-    const [hours, minutes] = timeSlot.split(":").map(Number);
-    const slotDate = new Date(currentDate);
-    slotDate.setHours(hours, minutes, 0, 0);
-
-    const currentDatePlus30Mins = new Date(
-      currentDate.getTime() + 30 * 60 * 1000
-    );
-
-    if (timeSlot == selectedTimeSlot) {
-      return "  border-blue-500";
-    } else {
-      return " hover:bg-gray-100 hover:border hover:rounded ";
-    }
-  };
-
-  const handleTimeSlotChange = (slot) => {
-    fSetCurrentReservation();
-    const [hours, minutes] = slot.split(":").map(Number);
-    const newDate = new Date(currentDate);
-    newDate.setHours(hours, minutes, 0, 0);
-    fSetCurrentDate(newDate);
-  };
-
-  return (
-    <div
-      className="overflow-x-scroll overflow-y-hidden w-full hide-scrollbar"
-      ref={timeSlotsContainerRef}
-    >
-      <div className="flex flex-row py-4">
-        {getTimeSlots().map((slot, index) => (
-          <div
-            key={index}
-            onClick={() => handleTimeSlotChange(slot)}
-            className={`flex justify-center py-2 min-w-[75px] text-center border-b-2 cursor-pointer text-lg ${getTimeSlotStyle(
-              slot
-            )}`}
-          >
-            {slot}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};

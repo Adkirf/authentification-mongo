@@ -45,6 +45,37 @@ const TableGrid = () => {
   const [helperRectangleRefState, setHelperRectangleRefState] = useState(null);
 
   useEffect(() => {
+    console.log("innitng tables");
+    const initTableSeats = [];
+    tables.map((table) => {
+      if (initTableSeats.includes(table.seats)) {
+        return;
+      }
+      initTableSeats.push(table.seats);
+    });
+
+    const rowHelper = [];
+
+    const initTableSlots = tables.map((table) => {
+      rowHelper.push(table);
+      const rowIndex = rowHelper.filter(
+        (tableHelper) => tableHelper.seats == table.seats
+      ).length;
+      return {
+        ...table,
+        col: initTableSeats.indexOf(table.seats) + 1,
+        row: rowIndex + 1,
+      };
+    });
+
+    console.log(initTableSeats);
+
+    setTableSeats(initTableSeats);
+    setTableSlots(initTableSlots);
+    fSetPossibleTables(initTableSlots);
+  }, []);
+
+  useEffect(() => {
     const initTableSeats = [];
     tables.map((table) => {
       if (initTableSeats.includes(table.seats)) {
@@ -70,7 +101,7 @@ const TableGrid = () => {
     setTableSeats(initTableSeats);
     setTableSlots(initTableSlots);
     fSetPossibleTables(initTableSlots);
-  }, [currentDate, currentReservations]);
+  }, [currentDate, currentReservations, currentReservation]);
 
   useEffect(() => {
     if (scrollRef) {
@@ -80,6 +111,13 @@ const TableGrid = () => {
       setHelperRectangleRefState(helperRectangleRef);
     }
   }, [scrollRef, helperRectangleRef]);
+
+  useEffect(() => {
+    if (!tableSlots.length) {
+      return;
+    }
+    fSetPossibleTables();
+  }, [currentTimeSlotIndex, indexSpan]);
 
   const getTableSlots = () => {
     return tableSlots.map((table, index) => (
@@ -136,10 +174,15 @@ const TableGrid = () => {
         availableTables.push(table);
       }
     });
+    console.log(availableTables);
     setPossibleTables(availableTables);
   };
 
-  //handleTableSlotClick
+  useEffect(() => {
+    console.log("possible tables");
+    console.log(possibleTables);
+  }, [possibleTables]);
+
   const handleTableSlotClick = (table) => {
     const date = getIndexToTime();
     if (possibleTables.includes(table)) {
@@ -204,12 +247,11 @@ const TableGrid = () => {
           </div>
           <div
             ref={scrollRef}
-            className="h-[400px] flex items-center flex-col flex-shrink hide-scrollbar overflow-y-scroll"
+            className="scroll-smooth h-[400px] flex items-center flex-col flex-shrink hide-scrollbar overflow-y-scroll"
           >
             <span className="block min-h-[200px]" />
             <TimeSlots
               mainSlots={possibleTables}
-              setMainSlots={fSetPossibleTables}
               scrollRef={scrollRefState ? scrollRefState.current : null}
               helperRectangleRef={
                 helperRectangleRefState

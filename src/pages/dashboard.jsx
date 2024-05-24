@@ -103,6 +103,7 @@ const App = () => {
     if (!duration && index) {
       newIndexSpan = index;
     }
+    console.log(newIndexSpan);
     setIndexSpan(newIndexSpan);
   };
 
@@ -148,10 +149,8 @@ const App = () => {
     return { start: currentStartDate, end: currentEndDate };
   };
 
-  const setTimeToIndex = (start) => {
-    if (currentReservation) {
-      start = currentReservation.start;
-    }
+  const getTimeToIndex = (start) => {
+    if (!start) return null;
     const openHour = parseInt(openingHours.open.split(":")[0], 10);
     const openMinute = parseInt(openingHours.open.split(":")[1], 10);
 
@@ -160,8 +159,7 @@ const App = () => {
 
     const totalMinutesElapsed = currentTimeInMinutes - openTimeInMinutes;
     const index = Math.floor(totalMinutesElapsed / 30);
-    console.log(index);
-    setCurrentTimeSlotIndex(index ? index : 0);
+    return index;
   };
 
   //Former Dashbaord context
@@ -220,9 +218,10 @@ const App = () => {
     setCurrentReservations(ordered);
   };
 
-  const fSetCurrentReservation = async (reservation) => {
+  const fSetCurrentReservation = (reservation) => {
     setCurrentReservation(reservation);
     if (reservation) {
+      setCurrentTimeSlotIndex(getTimeToIndex(reservation.start));
       setCurrentDate(reservation.start);
     }
   };
@@ -505,7 +504,7 @@ const App = () => {
     fSetIndexSpan,
     fSetCurrentTimeSlotIndex,
     getIndexToTime,
-    setTimeToIndex,
+    getTimeToIndex,
   };
 
   return (

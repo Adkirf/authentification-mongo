@@ -57,7 +57,7 @@ const ReservationCard = ({ reservation, setRef }) => {
     if (reservationRef && setRef) {
       setRef(reservationRef);
     }
-  }, [reservationRef, currentReservation]);
+  }, [reservationRef, currentReservation, setRef]);
 
   useEffect(() => {
     if (currentReservation && !currentReservation.name) {
@@ -328,7 +328,7 @@ const ReservationCard = ({ reservation, setRef }) => {
   return (
     <ReservationContext.Provider value={reservationValue}>
       <div
-        ref={setRef ? reservationRef : null}
+        ref={reservationRef}
         className={`border overflow-hidden min-w-[90px] h-full ${border} rounded-lg`}
       >
         {getCard()}
